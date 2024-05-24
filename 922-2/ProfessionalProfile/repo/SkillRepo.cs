@@ -1,169 +1,121 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
-using ProfessionalProfile.RepoInterfaces;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class SkillRepo : ISkillRepoInterface<Skill>
+    public class SkillRepo : ISkillRepo
     {
-        private string connectionString;
+        private readonly IDbContextFactory<DataContext> _contextFactory;
 
-        public SkillRepo(string connectionString)
+        public SkillRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            this.connectionString = connectionString;
+            _contextFactory = contextFactory;
         }
-
-        public SkillRepo()
-        {
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
-        }
-
         public void Add(Skill item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "EXEC InsertSkill @Name";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@Name", item.Name);
-
-                command.ExecuteNonQuery();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.Skill.Add(item);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
         public void Delete(int id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "EXEC DeleteSkill @SkillId = @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", id);
-
-                command.ExecuteNonQuery();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    var item = context.Skill.Find(id);
+                    context.Skill.Remove(item);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
-        public List<Skill> GetAll()
+        public ICollection<Skill> GetAll()
         {
-            List<Skill> skills = new List<Skill>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "EXEC GetAllSkills";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    Skill skill = new Skill(reader.GetInt32(0), reader.GetString(1));
-                    skills.Add(skill);
+                    return context.Skill.ToList();
                 }
             }
-
-            return skills;
-        }
-
-        public List<Skill> GetByUserId(int userId)
-        {
-            List<Skill> skills = new List<Skill>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            catch (Exception ex)
             {
-                connection.Open();
-
-                string sql = "EXEC GetUserSkills @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@id", userId);
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    Skill skill = new Skill(reader.GetInt32(0), reader.GetString(1));
-                    skills.Add(skill);
-                }
+                throw ex;
             }
-
-            return skills;
         }
 
         public Skill GetById(int id)
         {
-            Skill skill = null;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "SELECT * FROM Skills WHERE SkillId = @Id";
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@Id", id);
-
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    if (reader.Read())
-                    {
-                        int skillId = (int)reader["SkillId"];
-                        string name = (string)reader["Name"];
-
-                        skill = new Skill(skillId, name);
-                    }
+                    return context.Skill.Find(id);
                 }
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-            return skill;
+        public List<Skill> GetByUserId(int userId)
+        {
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public int GetIdByName(string name)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "SELECT SkillId FROM Skills WHERE Name = @Name";
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@Name", name);
-
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    if (reader.Read())
-                    {
-                        return Convert.ToInt32(reader["SkillId"]);
-                    }
+                    return context.Skill.Where(x => x.name == name).FirstOrDefault().skillId;
                 }
             }
-
-            return 0;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void Update(Skill item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "EXEC UpdateSkill @SkillId = @id, @Name = @name";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", item.SkillId);
-                command.Parameters.AddWithValue("@name", item.Name);
-
-                command.ExecuteNonQuery();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.Skill.Update(item);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

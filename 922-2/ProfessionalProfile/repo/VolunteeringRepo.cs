@@ -1,161 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class VolunteeringRepo : IRepoInterface<Volunteering>
+    public class VolunteeringRepo : IVolunteeringRepo
     {
-        private string connectionString;
-
-        public VolunteeringRepo()
+        private readonly IDbContextFactory<DataContext> _contextFactory;
+        public VolunteeringRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+            _contextFactory = contextFactory;
         }
-
         public void Add(Volunteering item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "EXEC InsertVolunteering @UserId, @Organisation, @Role, @Description";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-                command.Parameters.AddWithValue("@Organisation", item.Organisation);
-                command.Parameters.AddWithValue("@Role", item.Role);
-                command.Parameters.AddWithValue("@Description", item.Description);
-
-                command.ExecuteNonQuery();
+                context.Volunteering.Add(item);
+                context.SaveChanges();
             }
         }
 
         public void Delete(int id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "EXEC DeleteVolunteering @VolunteeringId = @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", id);
-
-                command.ExecuteNonQuery();
+                var volunteering = context.Volunteering.Find(id);
+                context.Volunteering.Remove(volunteering);
+                context.SaveChanges();
             }
         }
 
-        public List<Volunteering> GetAll()
+        public ICollection<Volunteering> GetAll()
         {
-            List<Volunteering> volunteerings = new List<Volunteering>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "EXEC GetAllVolunteerings";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    int volunteeringId = (int)reader["VolunteeringId"];
-                    int userId = (int)reader["UserId"];
-                    string organisation = (string)reader["Organisation"];
-                    string role = (string)reader["Role"];
-                    string description = (string)reader["Description"];
-
-                    Volunteering volunteering = new Volunteering(volunteeringId, userId, organisation, role, description);
-                    volunteerings.Add(volunteering);
-                }
+                return context.Volunteering.ToList();
             }
-
-            return volunteerings;
-        }
-
-        public List<Volunteering> GetByUserId(int userId)
-        {
-            List<Volunteering> volunteering = new List<Volunteering>();
-
-            volunteering = GetAll();
-
-            for (int i = 0; i < volunteering.Count; i++)
-            {
-                if (volunteering[i].UserId != userId)
-                {
-                    volunteering.RemoveAt(i);
-                    i--;
-                }
-            }
-
-            return volunteering;
         }
 
         public Volunteering GetById(int id)
         {
-            Volunteering volunteering = null;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "EXEC GetVolunteeringById @VolunteeringId = @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", id);
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    try
-                    {
-                        int volunteeringId = (int)reader["VolunteeringId"];
-                        int userId = (int)reader["UserId"];
-                        string organisation = (string)reader["Organisation"];
-                        string role = (string)reader["Role"];
-                        string description = (string)reader["Description"];
-
-                        volunteering = new Volunteering(volunteeringId, userId, organisation, role, description);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Error getting user by ID: {e.Message}");
-                    }
-                }
+                return context.Volunteering.Find(id);
             }
-            return volunteering;
         }
 
-        public void Update(Volunteering item)
+        public void Update(Volunteering volunteering)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = @"EXEC UpdateVolunteering
-                @VolunteeringId = @VolunteeringId,
-                @UserId = @UserId,
-                @Organisation = @Organisation,
-                @Role = @Role,
-                @Description = @Description";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@VolunteeringId", item.VolunteeringId);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-                command.Parameters.AddWithValue("@Organisation", item.Organisation);
-                command.Parameters.AddWithValue("@Role", item.Role);
-                command.Parameters.AddWithValue("@Description", item.Description);
-
-                command.ExecuteNonQuery();
+                context.Volunteering.Update(volunteering);
+                context.SaveChanges();
             }
         }
     }

@@ -1,91 +1,109 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
-using ProfessionalProfile.RepoInterfaces;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class AnswerRepo : IAnswerRepoInterface<Answer>
+    public class AnswerRepo : IAnswerRepo
     {
-        private string connectionString;
-
-        public AnswerRepo(string connectionString)
+        private readonly IDbContextFactory<DataContext> _contextFactory;
+        public AnswerRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            this.connectionString = connectionString;
+            _contextFactory = contextFactory;
         }
-
-        public AnswerRepo()
-        {
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
-        }
-
         public void Add(Answer item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = @"INSERT INTO Answers (AnswerText, QuestionId, IsCorrect) 
-                       VALUES (@AnswerText, @QuestionId, @IsCorrect)";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@AnswerText", item.AnswerText);
-                command.Parameters.AddWithValue("@QuestionId", item.QuestionId);
-                command.Parameters.AddWithValue("@IsCorrect", item.IsCorrect);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public List<Answer> GetAnswers(int questionId)
-        {
-            List<Answer> answers = new List<Answer>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string sql = "SELECT * FROM Answers WHERE QuestionId = @QuestionId";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@QuestionId", questionId);
-
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    int answerID = (int)reader["AnswerId"];
-                    string answerText = (string)reader["AnswerText"];
-                    int questionID = (int)reader["QuestionId"];
-                    bool isCorrect = (bool)reader["IsCorrect"];
-
-                    answers.Add(new Answer(answerID, answerText, questionID, isCorrect));
+                    context.Answers.Add(item);
+                    context.SaveChanges();
                 }
             }
-
-            return answers;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void Delete(int id)
         {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    var answer = context.Answers.Find(id);
+                    context.Answers.Remove(answer);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public List<Answer> GetAll()
+        public ICollection<Answer> GetAll()
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.Answers.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public Answer GetById(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.Answers.Find(id);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public void Update(Answer item)
+        public void Update(Answer answer)
         {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.Answers.Update(answer);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ICollection<Answer> GetAnswers(int QuestionId)
+        {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.Answers.Where(x => x.questionId == QuestionId).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

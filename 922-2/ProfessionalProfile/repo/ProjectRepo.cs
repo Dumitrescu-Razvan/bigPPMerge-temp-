@@ -1,184 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class ProjectRepo : IRepoInterface<Project>
+    public class ProjectRepo : IProjectRepo
     {
-        private string connectionString;
-
-        public ProjectRepo()
+        private readonly IDbContextFactory<DataContext> _contextFactory;
+        public ProjectRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            // IsRead connection string from app.config
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+            _contextFactory = contextFactory;
         }
-
         public void Add(Project item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-                int userIdInt = int.Parse(item.UserId);
-
-                string sql = "EXEC InsertProject @ProjectName, @Description, @Technologies, @UserId";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@ProjectName", item.ProjectName);
-                command.Parameters.AddWithValue("@Description", item.Description);
-                command.Parameters.AddWithValue("@Technologies", item.Technologies);
-                command.Parameters.AddWithValue("@UserId", userIdInt);
-
-                command.ExecuteNonQuery();
+                context.Project.Add(item);
+                context.SaveChanges();
             }
         }
 
         public void Delete(int id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "EXEC DeleteProject ProjectId = @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", id);
-
-                command.ExecuteNonQuery();
+                var project = context.Project.Find(id);
+                context.Project.Remove(project);
+                context.SaveChanges();
             }
         }
 
-        public List<Project> GetAll()
+        public ICollection<Project> GetAll()
         {
-            List<Project> projects = new List<Project>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "EXEC GetAllProjects";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int projectId = (int)reader["ProjectId"];
-                        string projectName = (string)reader["ProjectName"];
-                        string description = (string)reader["Description"];
-                        string technologies = (string)reader["Technologies"];
-                        int userId = (int)reader["UserId"];
-
-                        Project project = new Project(projectId, projectName, description, technologies, userId.ToString());
-                        projects.Add(project);
-                    }
-                }
+                return context.Project.ToList();
             }
-
-            return projects;
         }
 
         public Project GetById(int id)
         {
-            Project project = null;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                // Consider using parameterized queries to prevent SQL injection
-                string sql = "Select * from Projects where ProjectId = @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", id);
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        try
-                        {
-                            int projectId = (int)reader["ProjectId"];
-                            string projectName = (string)reader["ProjectName"];
-                            string description = (string)reader["Description"];
-                            string technologies = (string)reader["Technologies"];
-                            string userId = reader["UserId"].ToString();
-
-                            project = new Project(projectId, projectName, description, technologies, userId);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Handle potential exceptions during data reading (e.g., casting issues)
-                            Console.WriteLine($"Error getting project by ID: {ex.Message}");
-                        }
-                    }
-                }
-            }
-
-            return project;
-        }
-
-        public void Update(Project item)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                // Consider using parameterized queries to prevent SQL injection
-                string sql = @"EXEC UpdateProjects
-                            ProjectId = @ProjectId,
-                            ProjectName = @ProjectName,
-                            Description = @Description,
-                            Technologies = @Technologies,
-                            UserId = @UserId";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@ProjectId", item.ProjectId);
-                command.Parameters.AddWithValue("@ProjectName", item.ProjectName);
-                command.Parameters.AddWithValue("@Description", item.Description);
-                command.Parameters.AddWithValue("@Technologies", item.Technologies);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-
-                command.ExecuteNonQuery();
+                return context.Project.Find(id);
             }
         }
 
-        public List<Project> GetByUserId(int userId)
+        public void Update(Project project)
         {
-            List<Project> projects = new List<Project>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "SELECT Projects.* FROM Projects JOIN Users ON Projects.UserId = Users.UserId WHERE Users.UserId = @UserId;";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@UserId", userId);
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int projectId = (int)reader["ProjectId"];
-                        string projectName = (string)reader["ProjectName"];
-                        string description = (string)reader["Description"];
-                        string technologies = (string)reader["Technologies"];
-                        int userIdInt = (int)reader["UserId"];
-
-                        Project project = new Project(projectId, projectName, description, technologies, userIdInt.ToString());
-                        projects.Add(project);
-                    }
-                }
+                context.Project.Update(project);
+                context.SaveChanges();
             }
-
-            return projects;
         }
     }
 }

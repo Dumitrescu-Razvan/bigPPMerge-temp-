@@ -12,13 +12,5 @@ namespace ProfessionalProfile.Domain
         public string Description { get; set; }
         public List<QuestionDTO> Questions { get; set; }
         public string SkillTested { get; set; }
-
-        public AssessmentTestDTO(string testName, string description, List<QuestionDTO> questions, string skillTested)
-        {
-            this.TestName = testName;
-            this.Description = description;
-            this.Questions = questions;
-            this.SkillTested = skillTested;
-        }
     }
 }

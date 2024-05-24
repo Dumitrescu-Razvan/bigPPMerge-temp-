@@ -1,91 +1,110 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
-using ProfessionalProfile.RepoInterfaces;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    internal class AssessmentResultRepo : IAssessmentResultRepoInterface<AssessmentResult>
+    public class AssessmentResultRepo : IAssessmentResultRepo
     {
-        private string connectionString;
+        private readonly IDbContextFactory<DataContext> _contextFactory;
 
-        public AssessmentResultRepo(string connectionString)
+        public AssessmentResultRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            this.connectionString = connectionString;
+            _contextFactory = contextFactory;
         }
-
-        public AssessmentResultRepo()
-        {
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
-        }
-
         public void Add(AssessmentResult item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "INSERT INTO AssessmentResult (AssessmentTestId, Score, UserId, TestDate) " +
-                              "VALUES (@AssessmentTestId, @Score, @UserId, @TestDate)";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@AssessmentTestId", item.AssessmentTestId);
-                command.Parameters.AddWithValue("@Score", item.Score);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-                command.Parameters.AddWithValue("@TestDate", item.TestDate);
-
-                command.ExecuteNonQuery();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.AssessmentResult.Add(item);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
         public void Delete(int id)
         {
-        }
-
-        public List<AssessmentResult> GetAll()
-        {
-            List<AssessmentResult> assessmentResults = new List<AssessmentResult>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "SELECT * FROM AssessmentResult";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    AssessmentResult assessmentResult = new AssessmentResult(reader.GetInt32(0),
-                        reader.GetInt32(1), reader.GetInt32(2),
-                        reader.GetInt32(3), reader.GetDateTime(4));
-
-                    assessmentResults.Add(assessmentResult);
+                    var assessmentResult = context.AssessmentResult.Find(id);
+                    context.AssessmentResult.Remove(assessmentResult);
+                    context.SaveChanges();
                 }
             }
-
-            return assessmentResults;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public List<AssessmentResult> GetAssessmentResultsByUserId(int userId)
+        public ICollection<AssessmentResult> GetAll()
         {
-            List<AssessmentResult> allResults = this.GetAll();
-            return allResults.FindAll(result => result.UserId == userId);
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.AssessmentResult.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public AssessmentResult GetById(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.AssessmentResult.Find(id);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public void Update(AssessmentResult item)
+        public void Update(AssessmentResult assessmentResult)
         {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.AssessmentResult.Update(assessmentResult);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ICollection<AssessmentResult> GetAssessmentResultsByUserId(int userId)
+        {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.AssessmentResult.Where(x => x.userId == userId).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

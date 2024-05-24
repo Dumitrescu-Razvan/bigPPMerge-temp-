@@ -1,92 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
 using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class NotificationRepo : INotificationRepoInterface<Notification>
+    public class NotificationRepo : INotificationRepo
     {
-        private string connectionString;
-
-        public NotificationRepo()
+        private readonly IDbContextFactory<DataContext> _contextFactory;
+        public NotificationRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+            _contextFactory = contextFactory;
         }
-
         public void Add(Notification item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = @"INSERT INTO Notifications (UserId, Activity, Timestamp, Details, isRead) 
-                       VALUES (@UserId, @Activity, @Timestamp, @Details, @isRead)";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-                command.Parameters.AddWithValue("@Activity", item.Activity);
-                command.Parameters.AddWithValue("@Timestamp", item.Timestamp);
-                command.Parameters.AddWithValue("@Details", item.Details);
-                command.Parameters.AddWithValue("@isRead", item.IsRead);
-
-                command.ExecuteNonQuery();
+                context.Notification.Add(item);
+                context.SaveChanges();
             }
         }
 
         public void Delete(int id)
         {
-        }
-
-        public List<Notification> GetAll()
-        {
-            List<Notification> notifications = new List<Notification>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "SELECT * FROM Notifications";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    int notificationId = (int)reader["NotificationId"];
-                    int userId = (int)reader["UserId"];
-                    string activity = (string)reader["Activity"];
-                    DateTime timestamp = (DateTime)reader["Timestamp"];
-                    string details = (string)reader["Details"];
-                    bool isRead = (bool)reader["isRead"];
-
-                    Notification notification = new Notification(notificationId, userId, activity, timestamp, details, isRead);
-                    notifications.Add(notification);
-                }
+                var notification = context.Notification.Find(id);
+                context.Notification.Remove(notification);
+                context.SaveChanges();
             }
-
-            return notifications;
         }
 
-        public List<Notification> GetAllByUserId(int userId)
+        public ICollection<Notification> GetAll()
         {
-            List<Notification> allNotifications = this.GetAll();
-
-            return allNotifications.FindAll((notification) => notification.UserId == userId);
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Notification.ToList();
+            }
         }
 
         public Notification GetById(int id)
         {
-            throw new NotImplementedException();
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Notification.Find(id);
+            }
         }
 
-        public void Update(Notification item)
+        public void Update(Notification notification)
         {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                context.Notification.Update(notification);
+                context.SaveChanges();
+            }
+        }
+        // List<Notification> ProfessionalProfile.Interfaces.INotificationRepo.GetAllByUserId(int)' is not implemented
+        public List<Notification> GetAllByUserId(int id)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Notification.Where(n => n.userId == id).ToList();
+                
+            }
         }
     }
 }

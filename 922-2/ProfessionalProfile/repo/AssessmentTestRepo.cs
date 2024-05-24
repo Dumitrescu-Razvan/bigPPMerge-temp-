@@ -1,139 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
-using ProfessionalProfile.RepoInterfaces;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class AssessmentTestRepo : IAssessmentTestRepoInterface<AssessmentTest>
+    public class AssessmentTestRepo : IAssessmentTestRepo
     {
-        private string connectionString;
-
-        public AssessmentTestRepo(string connectionString)
+        private readonly IDbContextFactory<DataContext> _contextFactory;
+        public AssessmentTestRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            this.connectionString = connectionString;
+            _contextFactory = contextFactory;
         }
-
-        public AssessmentTestRepo()
-        {
-            // IsRead connection string from app.config
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
-        }
-
         public void Add(AssessmentTest item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = @"INSERT INTO AssessmentTest (TestName, UserId, Description, SkillId) 
-                       VALUES (@Name, @UserId, @Description, @SkillId)";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@Name", item.TestName);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-                command.Parameters.AddWithValue("@Description", item.Description);
-                command.Parameters.AddWithValue("@SkillId", item.Skillid);
-
-                command.ExecuteNonQuery();
+                context.AssessmentTest.Add(item);
+                context.SaveChanges();
             }
-        }
-
-        public int GetIdByName(string testName)
-        {
-            int assessmentTestId = 0;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string sql = "SELECT AssessmentTestId FROM AssessmentTest WHERE TestName = @TestName";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@TestName", testName);
-
-                object result = command.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
-                {
-                    assessmentTestId = Convert.ToInt32(result);
-                }
-            }
-
-            return assessmentTestId;
-        }
-
-        public List<AssessmentTest> GetAll()
-        {
-            List<AssessmentTest> assessmentTests = new List<AssessmentTest>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string sql = "SELECT * FROM AssessmentTest";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int assessmentTestId = (int)reader["assessmentTestId"];
-                        string testName = (string)reader["testName"];
-                        int userId = (int)reader["userId"];
-                        string description = (string)reader["description"];
-                        int skillId = (int)reader["SkillId"];
-
-                        AssessmentTest assessmentTest = new AssessmentTest(assessmentTestId, testName, userId, description, skillId);
-
-                        assessmentTests.Add(assessmentTest);
-                    }
-                }
-            }
-
-            return assessmentTests;
         }
 
         public void Delete(int id)
         {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                var assessmentTest = context.AssessmentTest.Find(id);
+                context.AssessmentTest.Remove(assessmentTest);
+                context.SaveChanges();
+            }
+        }
+
+        public ICollection<AssessmentTest> GetAll()
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.AssessmentTest.ToList();
+            }
         }
 
         public AssessmentTest GetById(int id)
         {
-            AssessmentTest assessmentTest = null;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "SELECT * FROM AssessmentTest WHERE assessmentTestId = @Id";
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@Id", id);
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        int assessmentTestId = (int)reader["assessmentTestId"];
-                        string testName = (string)reader["testName"];
-                        int userId = (int)reader["userId"];
-                        string description = (string)reader["description"];
-                        int skillId = (int)reader["SkillId"];
-
-                        assessmentTest = new AssessmentTest(assessmentTestId, testName, userId, description, skillId);
-                    }
-                }
+                return context.AssessmentTest.Find(id);
             }
-
-            return assessmentTest;
         }
 
-        public void Update(AssessmentTest item)
+        public void Update(AssessmentTest assessmentTest)
         {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                context.AssessmentTest.Update(assessmentTest);
+                context.SaveChanges();
+            }
         }
+        public int GetIdByName(string testName)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.AssessmentTest.Where(x => x.testName == testName).Select(x => x.assessmentTestId).FirstOrDefault();
+            }
+        } 
     }
 }

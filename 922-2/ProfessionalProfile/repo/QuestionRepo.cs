@@ -1,116 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
-using ProfessionalProfile.RepoInterfaces;
+using ProfessionalProfile.Interfaces;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class QuestionRepo : IQuestionRepoInterface<Question>
+    public class QuestionRepo : IQuestionRepo
     {
-        private string connectionString;
-
-        public QuestionRepo(string connectionString)
+        private readonly IDbContextFactory<DataContext> _contextFactory;
+        public QuestionRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            this.connectionString = connectionString;
+            _contextFactory = contextFactory;
         }
-
-        public QuestionRepo()
-        {
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
-        }
-
         public void Add(Question item)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = @"INSERT INTO Questions (QuestionText, AssessmentTestId) 
-                       VALUES (@QuestionText, @AssessmentTestId)";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@QuestionText", item.QuestionText);
-                command.Parameters.AddWithValue("@AssessmentTestId", item.AssesmentTestId);
-
-                command.ExecuteNonQuery();
+                context.Question.Add(item);
+                context.SaveChanges();
             }
-        }
-
-        public int GetIdByNameAndAssessmentId(string questionName, int assessmentId)
-        {
-            int questionId = 0;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string sql = "SELECT QuestionId FROM Questions WHERE QuestionText = @QuestionText AND AssessmentTestId = @AssessmentId";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@QuestionText", questionName);
-                command.Parameters.AddWithValue("@AssessmentId", assessmentId);
-
-                object result = command.ExecuteScalar();
-                if (result != null && result != DBNull.Value)
-                {
-                    questionId = Convert.ToInt32(result);
-                }
-            }
-
-            return questionId;
         }
 
         public void Delete(int id)
         {
-        }
-
-        public List<Question> GetAllByTestId(int testID)
-        {
-            List<Question> questions = new List<Question>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var context = _contextFactory.CreateDbContext())
             {
-                connection.Open();
-
-                string sql = "SELECT * FROM Questions WHERE AssessmentTestId = @TestId";
-                SqlCommand command = new SqlCommand(sql, connection);
-                command.Parameters.AddWithValue("@TestId", testID);
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int questionId = (int)reader["QuestionId"];
-                        string questionText = (string)reader["QuestionText"];
-                        int testId = (int)reader["AssessmentTestId"];
-                        // You may need to retrieve other properties depending on your schema
-                        Question question = new Question(questionId, questionText, testId);
-
-                        questions.Add(question);
-                    }
-                }
+                var question = context.Question.Find(id);
+                context.Question.Remove(question);
+                context.SaveChanges();
             }
-
-            return questions;
         }
 
-        public List<Question> GetAll()
+        public ICollection<Question> GetAll()
         {
-            throw new NotImplementedException();
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Question.ToList();
+            }
         }
 
         public Question GetById(int id)
         {
-            throw new NotImplementedException();
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Question.Find(id);
+            }
         }
 
-        public void Update(Question item)
+        public void Update(Question question)
         {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                context.Question.Update(question);
+                context.SaveChanges();
+            }
+        }
+        //Interface member 'List<Question> ProfessionalProfile.Interfaces.IQuestionRepo.GetAllByTestId(int)' is not implemented
+        //Interface member 'int ProfessionalProfile.Interfaces.IQuestionRepo.GetIdByNameAndAssessmentId(string, int)' is not implemented
+        public List<Question> GetAllByTestId(int id)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Question.Where(x => x.assesmentTestId == id).ToList();
+            }
+        }
+        
+        public int GetIdByNameAndAssessmentId(string question, int assessmentId)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Question.Where(x => x.questionText == question && x.assesmentTestId == assessmentId).Select(x => x.questionId).FirstOrDefault();
+            }
         }
     }
 }

@@ -1,179 +1,98 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using ProfessionalProfile.DatabaseContext;
 using ProfessionalProfile.Domain;
-using ProfessionalProfile.SectionValidators;
+using ProfessionalProfile.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ProfessionalProfile.Repo
+namespace ProfessionalProfile.repo
 {
-    public class CertificateRepo : IRepoInterface<Certificate>
+    public class CertificateRepo : ICertificateRepo
     {
-        private string connectionString;
+        private readonly IDbContextFactory<DataContext> _contextFactory;
 
-        public CertificateRepo()
+        public CertificateRepo(IDbContextFactory<DataContext> contextFactory)
         {
-            // IsRead connection string from app.config
-            connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+            _contextFactory = contextFactory;
         }
+
         public void Add(Certificate item)
         {
-            SectionValidator.ValidateCertificate(item);
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                string sql = "EXEC InsertCertificate @UserId, @Name, @Description, @IssuedBy, @IssuedDate, @ExpirationDate";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@Name", item.Name);
-                command.Parameters.AddWithValue("@Description", item.Description);
-                command.Parameters.AddWithValue("@IssuedBy", item.IssuedBy); // Assuming IssuingOrganisation maps to IssuedBy field
-                command.Parameters.AddWithValue("@IssuedDate", item.IssuedDate);
-                command.Parameters.AddWithValue("@ExpirationDate", item.ExpirationDate);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void Delete(int certificateId)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string sql = "EXEC DeleteCertificate @CertificateId = @id";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", certificateId);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public List<Certificate> GetAll()
-        {
-            List<Certificate> certificates = new List<Certificate>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string sql = "EXEC GetAllCertificates";
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    while (reader.Read())
-                    {
-                        int certificateId = (int)reader["CertificateId"];
-                        string name = (string)reader["Name"];
-                        string issuedBy = (string)reader["IssuedBy"];
-                        string description = (string)reader["Description"];
-                        DateTime issuedDate = (DateTime)reader["IssuedDate"];
-                        DateTime expirationDate = (DateTime)reader["ExpirationDate"];
-                        int userId = (int)reader["UserId"];
-
-                        Certificate cert = new Certificate(certificateId, userId, name, issuedBy, description, issuedDate, expirationDate);
-                        certificates.Add(cert);
-                    }
+                    context.Certificate.Add(item);
+                    context.SaveChanges();
                 }
             }
-            return certificates;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public List<Certificate> GetByUserId(int userId)
+        public void Delete(int id)
         {
-            List<Certificate> certificates = new List<Certificate>();
-
-            certificates = GetAll();
-
-            for (int i = 0; i < certificates.Count; i++)
+            try
             {
-                if (certificates[i].UserId != userId)
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    certificates.RemoveAt(i);
-                    i--;
+                    var certificate = context.Certificate.Find(id);
+                    context.Certificate.Remove(certificate);
+                    context.SaveChanges();
                 }
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-            return certificates;
+        public ICollection<Certificate> GetAll()
+        {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.Certificate.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public Certificate GetById(int id)
         {
-            Certificate certificate = null;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                // Consider using parameterized queries to prevent SQL injection
-                string sql = "EXEC GetCertificateById @CertificateId = @id";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@id", id);
-
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (var context = _contextFactory.CreateDbContext())
                 {
-                    if (reader.Read())
-                    {
-                        try
-                        {
-                            int certificateId = (int)reader["CertificateId"];
-                            string name = (string)reader["Name"];
-                            string issuedBy = (string)reader["IssuedBy"];
-                            string description = (string)reader["Description"];
-                            DateTime issuedDate = (DateTime)reader["IssuedDate"];
-                            DateTime expirationDate = (DateTime)reader["ExpirationDate"];
-                            int userId = (int)reader["UserId"];
-
-                            certificate = new Certificate(certificateId, userId, name, issuedBy, description, issuedDate, expirationDate);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Handle potential exceptions during data reading (e.g., casting issues)
-                            Console.WriteLine($"Error getting user by ID: {ex.Message}");
-                        }
-                    }
+                    return context.Certificate.Find(id);
                 }
             }
-            return certificate;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public void Update(Certificate item)
+        public void Update(Certificate certificate)
         {
-            SectionValidator.ValidateCertificate(item);
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                // Consider using parameterized queries to prevent SQL injection
-                string sql = @"EXEC UpdateCertificate
-                @CertificateId = @CertificateId,
-                @UserId = @UserId,
-                @Name = @Name,
-                @Description = @Description,
-                @IssuedBy = @IssuedBy,
-                @IssuedDate = @IssuedDate,
-                @ExpirationDate = @ExpirationDate";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-
-                command.Parameters.AddWithValue("@CertificateId", item.CertificateId);
-                command.Parameters.AddWithValue("@UserId", item.UserId);
-                command.Parameters.AddWithValue("@Name", item.Name);
-                command.Parameters.AddWithValue("@Description", item.Description);
-                command.Parameters.AddWithValue("@IssuedBy", item.IssuedBy);
-                command.Parameters.AddWithValue("@IssuedDate", item.IssuedDate);
-                command.Parameters.AddWithValue("@ExpirationDate", item.ExpirationDate);
-
-                command.ExecuteNonQuery();
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.Certificate.Update(certificate);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }
