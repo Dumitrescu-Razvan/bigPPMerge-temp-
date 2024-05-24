@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>SE.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="bin\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <None Remove="bin\**" />
+    <Page Remove="bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="profile page\dude.png" />
+    <None Remove="profile page\github.png" />
+    <None Remove="profile page\linkdin.png" />
+    <None Remove="Service\loginAssets\facebook.png" />
+    <None Remove="Service\loginAssets\Linkedin.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="xunit" Version="2.7.1" />
+    <PackageReference Include="xunit.core" Version="2.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="profile page\dude.png" />
+    <Resource Include="profile page\github.png" />
+    <Resource Include="profile page\linkdin.png" />
+    <Resource Include="Service\loginAssets\facebook.png" />
+    <Resource Include="Service\loginAssets\Linkedin.png" />
+  </ItemGroup>
+
+</Project>
