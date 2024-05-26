@@ -1,8 +1,0 @@
-bin/
-obj/
-debug/
-release/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
