@@ -57,13 +57,17 @@ namespace District3_APP_WEB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId")] User user)
+        public async Task<IActionResult> Create([Bind("Id,Username,Password,Email,ConfirmationPassword,GroupId")] User user)
         {
+            user.RegistrationDate = DateTime.Now;
+            user.FollowingCount = 0;
+            user.FollowersCount = 0;
+            user.UserSession = new TimeSpan(0,5,0);
             if (ModelState.IsValid)
             {
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Login", "Home");
             }
             ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
             return View(user);
