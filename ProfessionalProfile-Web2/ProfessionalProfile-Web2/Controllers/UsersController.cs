@@ -53,7 +53,8 @@ public class UsersController : Controller
         {
             _context.Add(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            //redirect to login page
+            return RedirectToAction("Login", "Home");
         }
 
         return View(user);
