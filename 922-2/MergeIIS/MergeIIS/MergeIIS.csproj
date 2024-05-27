@@ -11,8 +11,4 @@
     <ProjectReference Include="..\ProfessionalProfile.Application\ProfessionalProfile.Application.csproj" />
     <ProjectReference Include="..\Securisti.Application\Securisti.Application.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DatabaseContext\" />
-  </ItemGroup>
 </Project>
