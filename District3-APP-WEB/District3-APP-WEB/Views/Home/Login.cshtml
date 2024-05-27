@@ -1,22 +1,22 @@
-﻿@{
+﻿﻿@{
     ViewData["Title"] = "Login";
 }
 
 <h2>Login</h2>
-<br/>
+<br />
 
 <form method="post" asp-controller="Users" asp-action="Login">
     <div class="form-group">
         <label for="Email">Email</label>
-        <input type="email" class="form-control" id="Email" name="Email" required/>
+        <input type="email" class="form-control" id="Email" name="Email" required />
     </div>
-    <br/>
+    <br />
     <div class="form-group">
         <label for="Password">Password</label>
-        <input type="password" class="form-control" id="Password" name="Password" required/>
+        <input type="password" class="form-control" id="Password" name="Password" required />
     </div>
-    <br/>
+    <br />
     <button type="submit" class="btn btn-primary">Login</button>
-    <br/>
+    <br />
     <a asp-controller="Users" asp-action="Create">Register</a>
 </form>
