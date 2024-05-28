@@ -31,6 +31,7 @@ public class HomeController : Controller
 
     public IActionResult Login()
     {
+        //return RedirectToAction("ProfilePage");
         return View();
     }
 
