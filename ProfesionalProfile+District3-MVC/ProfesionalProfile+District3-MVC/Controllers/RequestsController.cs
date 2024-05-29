@@ -5,28 +5,27 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class UsersController : Controller
+    public class RequestsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public UsersController(ApplicationDbContext context)
+        public RequestsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Users
+        // GET: Requests
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Users.Include(u => u.Group);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.Requests.ToListAsync());
         }
 
-        // GET: Users/Details/5
+        // GET: Requests/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +33,39 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Group)
+            var request = await _context.Requests
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
+            if (request == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(request);
         }
 
-        // GET: Users/Create
+        // GET: Requests/Create
         public IActionResult Create()
         {
-            ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id");
             return View();
         }
 
-        // POST: Users/Create
+        // POST: Requests/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
+        public async Task<IActionResult> Create([Bind("Id,SenderId,ReceiverId")] Request request)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
+                _context.Add(request);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
-            return View(user);
+            return View(request);
         }
 
-        // GET: Users/Edit/5
+        // GET: Requests/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +73,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var request = await _context.Requests.FindAsync(id);
+            if (request == null)
             {
                 return NotFound();
             }
-            ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
-            return View(user);
+            return View(request);
         }
 
-        // POST: Users/Edit/5
+        // POST: Requests/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SenderId,ReceiverId")] Request request)
         {
-            if (id != user.Id)
+            if (id != request.Id)
             {
                 return NotFound();
             }
@@ -102,12 +97,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(user);
+                    _context.Update(request);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
+                    if (!RequestExists(request.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +113,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
-            return View(user);
+            return View(request);
         }
 
-        // GET: Users/Delete/5
+        // GET: Requests/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,51 +124,34 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Group)
+            var request = await _context.Requests
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
+            if (request == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(request);
         }
 
-        // POST: Users/Delete/5
+        // POST: Requests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
+            var request = await _context.Requests.FindAsync(id);
+            if (request != null)
             {
-                _context.Users.Remove(user);
+                _context.Requests.Remove(request);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(int id)
+        private bool RequestExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
-        }
-        
-        [HttpPost]
-        public async Task<IActionResult> Login(string email, string password)
-        {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
-
-            if (user != null)
-                // Login successful
-                // Here you can add code to log the user in, like setting a cookie or a session variable
-                return RedirectToAction("ProfilePage", "Home");
-
-            // Login failed
-            ModelState.AddModelError("", "Invalid login attempt.");
-            return View();
+            return _context.Requests.Any(e => e.Id == id);
         }
     }
 }

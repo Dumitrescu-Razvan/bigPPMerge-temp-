@@ -140,6 +140,34 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.ToTable("AssessmentTests");
                 });
 
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Block", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("receiver")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("sender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("startingTimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Block");
+                });
+
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BlockedProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -246,6 +274,55 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.ToTable("CloseFriendProfile");
                 });
 
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Owner_User_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Post_Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.ControversialFeed", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("MinimumCommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumReactionCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReactionThreshold")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("ControversialFeeds");
+                });
+
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Education", b =>
                 {
                     b.Property<int>("educationId")
@@ -335,6 +412,132 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.ToTable("FancierProfile");
                 });
 
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.FeedConfiguration", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReactionThreshold")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("FeedConfigurations");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Follow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("expirationTimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("isCloseFriend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("receiver")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("sender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Follow");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.FollowSuggestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("numberOfCommonFriends")
+                        .HasColumnType("int");
+
+                    b.Property<int>("numberOfCommonGroups")
+                        .HasColumnType("int");
+
+                    b.Property<int>("numberOfCommonOrganizations")
+                        .HasColumnType("int");
+
+                    b.Property<int>("numberOfCommonTags")
+                        .HasColumnType("int");
+
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FollowSuggestions");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.FollowedFeedFollowedUsers", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("FollowedFeedID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FollowedUserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("FollowedFeedFollowedUsers");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.FollowingFeed", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReactionThreshold")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("FollowingFeeds");
+                });
+
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Group", b =>
                 {
                     b.Property<int>("Id")
@@ -376,6 +579,46 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Highlight");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Location");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Media", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Media");
                 });
 
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Notification", b =>
@@ -421,6 +664,68 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Post");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.PostArchived", b =>
+                {
+                    b.Property<int>("post_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("post_id"));
+
+                    b.Property<int>("archive_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("post_id");
+
+                    b.ToTable("PostArchived");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.PostReported", b =>
+                {
+                    b.Property<int>("Report_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Report_Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Post_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Reporter_Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Report_Id");
+
+                    b.ToTable("PostReported");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.PostSaved", b =>
+                {
+                    b.Property<int>("save_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("save_id"));
+
+                    b.Property<int>("post_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("user_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("save_id");
+
+                    b.ToTable("PostSaved");
                 });
 
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Privacy", b =>
@@ -513,6 +818,25 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.ToTable("Questions");
                 });
 
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Request", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Requests");
+                });
+
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Skill", b =>
                 {
                     b.Property<int>("skillId")
@@ -533,6 +857,35 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.HasIndex("BussinesCardbcId");
 
                     b.ToTable("Skills");
+                });
+
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.TrendingFeed", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReactionThreshold")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("TrendingFeeds");
                 });
 
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.User", b =>
