@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
@@ -59,11 +60,36 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
         {
+            if (user.Password != user.ConfirmationPassword)
+            {
+                ModelState.AddModelError("ConfirmationPassword", "Password and Confirmation Password do not match");
+            }
+            if (user.Email != null && _context.Users.Any(u => u.Email == user.Email))
+            {
+                ModelState.AddModelError("Email", "Email already exists");
+            }
+            if (user.Email != null && !user.Email.Contains("@") && !user.Email.Contains("."))
+            {
+                ModelState.AddModelError("Email", "Email is not valid");
+            }
+            user.RegistrationDate = DateTime.Now;
+            user.FollowersCount = 0;
+            user.FollowingCount = 0;
+            user.UserSession = TimeSpan.FromHours(1);
+            if (user.Phone.Length != 10 || user.Phone.Count(c => char.IsDigit(c)) != 10)
+            {
+                ModelState.AddModelError("Phone", "Phone number must be 10 digits and start with 07");
+            }
+            if (user.WebsiteURL != null && !user.WebsiteURL.Contains("http://") && !user.WebsiteURL.Contains("."))
+            {
+                ModelState.AddModelError("WebsiteURL", "Website URL must start with http://");
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+ 
+                return RedirectToAction("Index", "Home");
             }
             ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
             return View(user);
@@ -160,7 +186,6 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
-        
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
