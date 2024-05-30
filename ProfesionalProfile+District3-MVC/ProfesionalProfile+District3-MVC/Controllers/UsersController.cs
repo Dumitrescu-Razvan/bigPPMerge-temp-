@@ -186,7 +186,6 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
-
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {

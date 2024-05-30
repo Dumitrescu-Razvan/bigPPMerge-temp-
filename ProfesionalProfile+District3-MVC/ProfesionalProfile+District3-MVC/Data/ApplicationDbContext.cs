@@ -198,5 +198,24 @@ namespace ProfesionalProfile_District3_MVC.Data
                     .HasForeignKey(e => e.GroupId);
             });
         }
+        
+        // <------------------------------------ Securistii ------------------------------------>
+        public DbSet<Location> Location { get; set; }
+        public DbSet<Media> Media { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<PostArchived> PostArchived { get; set; } = null!;
+        public DbSet<PostSaved> PostSaved { get; set; } = null!;
+        public DbSet<PostReported> PostReported { get; set; } = null!;
+        public DbSet<Block> Block { get; set; } = null!;
+        public DbSet<Follow> Follow { get; set; } = null!;
+        public DbSet<FeedConfiguration> FeedConfigurations { get; set; } = null!;
+        public DbSet<ControversialFeed> ControversialFeeds { get; set; } = null!;
+        public DbSet<TrendingFeed> TrendingFeeds { get; set; } = null!;
+        public DbSet<FollowedFeedFollowedUsers> FollowedFeedFollowedUsers { get; set; } = null!;
+        public DbSet<FollowingFeed> FollowingFeeds { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<FollowSuggestion> FollowSuggestions { get; set; } = null!;
+
+        public DbSet<Request> Requests { get; set; } = null!;
     }
 }
