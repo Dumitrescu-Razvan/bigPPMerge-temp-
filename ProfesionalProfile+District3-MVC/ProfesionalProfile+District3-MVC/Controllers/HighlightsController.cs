@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class HighlightsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private HighlightRepository highlightRepository;
 
         public HighlightsController(ApplicationDbContext context)
         {
-            _context = context;
+            highlightRepository = new HighlightRepository(context);
         }
 
         // GET: Highlights

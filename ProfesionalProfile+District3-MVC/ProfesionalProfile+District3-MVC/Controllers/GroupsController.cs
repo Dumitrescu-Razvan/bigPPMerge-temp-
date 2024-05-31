@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class GroupsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private GroupRepository groupRepository;
 
         public GroupsController(ApplicationDbContext context)
         {
-            _context = context;
+            groupRepository = new GroupRepository(context);
         }
 
         // GET: Groups

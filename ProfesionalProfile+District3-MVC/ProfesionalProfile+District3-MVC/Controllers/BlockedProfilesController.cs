@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class BlockedProfilesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private BlockedProfileRepository blockedProfileRepository;
 
         public BlockedProfilesController(ApplicationDbContext context)
         {
-            _context = context;
+            blockedProfileRepository = new BlockedProfileRepository(context);
         }
 
         // GET: BlockedProfiles
