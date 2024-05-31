@@ -35,3 +35,4 @@ bin/
 obj/
 .vs
 /ProfesionalProfile+District3-MVC/ProfesionalProfile+District3-MVC/appsettings.json
+/ProfesionalProfile+District3-MVC/ProfesionalProfile+District3-MVC/Properties/launchSettings.json
