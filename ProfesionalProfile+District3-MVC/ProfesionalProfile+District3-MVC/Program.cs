@@ -14,6 +14,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
+builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 
 var app = builder.Build();
 

@@ -12,9 +12,10 @@ using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class AnswersController(IAnswerRepo _answerRepo) : Controller
+    public class AnswersController(IAnswerRepo _answerRepo, IQuestionRepo _questionRepo) : Controller
     {
         private readonly IAnswerRepo _answerRepo = _answerRepo;
+        private readonly IQuestionRepo _questionRepo = _questionRepo;
 
         // GET: Answers
         public async Task<IActionResult> Index()
@@ -49,10 +50,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Answers/Create
         public IActionResult Create()
         {
-            Answer answer = new Answer();
+            /*Answer answer = new Answer();
             answer.Question = new Question();
-            _answerRepo.Add(answer);
-            ViewData["questionId"] = new SelectList(_answerRepo.GetAll(), "questionId", "questionId");
+            _answerRepo.Add(answer);*/
+            ViewData["questionId"] = new SelectList(_questionRepo.GetAll(), "questionId", "questionId");
             //ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId");
             return View();
         }
