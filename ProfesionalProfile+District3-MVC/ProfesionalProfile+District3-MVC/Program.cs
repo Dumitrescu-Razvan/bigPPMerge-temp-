@@ -18,6 +18,7 @@ builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IAssessmentResultRepo, AssessmentResultRepo>();
 builder.Services.AddScoped<IAssessmentTestRepo, AssessmentTestRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<ISkillRepo, SkillRepo>();
 
 var app = builder.Build();
 
