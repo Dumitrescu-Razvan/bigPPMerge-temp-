@@ -15,6 +15,9 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 });
 builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
 builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
+builder.Services.AddScoped<IAssessmentResultRepo, AssessmentResultRepo>();
+builder.Services.AddScoped<IAssessmentTestRepo, AssessmentTestRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
 
 var app = builder.Build();
 

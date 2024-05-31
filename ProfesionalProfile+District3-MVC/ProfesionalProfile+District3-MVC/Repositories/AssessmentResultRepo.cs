@@ -21,6 +21,7 @@ namespace ProfesionalProfile_District3_MVC.Repositories
                 {
                     context.AssessmentResults.Add(item);
                     context.SaveChanges();
+
                 }
             }
             catch (Exception ex)

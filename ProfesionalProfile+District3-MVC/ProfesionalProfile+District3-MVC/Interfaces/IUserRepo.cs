@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ProfesionalProfile_District3_MVC.Interfaces
 {
-    public interface IUserRepoInterface
+    public interface IUserRepo
     {
         public User GetById(int id);
         public ICollection<User> GetAll();

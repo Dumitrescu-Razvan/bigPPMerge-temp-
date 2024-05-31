@@ -12,7 +12,7 @@ using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class UserRepo : IUserRepoInterface
+    public class UserRepo : IUserRepo
     {
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;    
         
