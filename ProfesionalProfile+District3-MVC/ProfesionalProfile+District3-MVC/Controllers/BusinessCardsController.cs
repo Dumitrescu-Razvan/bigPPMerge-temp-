@@ -6,24 +6,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class BussinesCardsController : Controller
+    public class BusinessCardsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IBusinessCardRepo _businessCardRepo;
+        private readonly IUserRepo _userRepo;
 
-        public BussinesCardsController(ApplicationDbContext context)
+        public BusinessCardsController(IBusinessCardRepo businessCardRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _businessCardRepo = businessCardRepo;
+            _userRepo = userRepo;
         }
 
         // GET: BusinessCards
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.BusinessCards.Include(b => b.User);
-            return View(await applicationDbContext.ToListAsync());
+            var businessCards = _businessCardRepo.GetAll();
+            return View(businessCards);
+            //var applicationDbContext = _context.BusinessCards.Include(b => b.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: BusinessCards/Details/5
@@ -34,9 +41,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var bussinesCard = await _context.BusinessCards
+            var bussinesCard = _businessCardRepo.GetById(id.Value);
+            /*var bussinesCard = await _context.BusinessCards
                 .Include(b => b.User)
-                .FirstOrDefaultAsync(m => m.bcId == id);
+                .FirstOrDefaultAsync(m => m.bcId == id);*/
             if (bussinesCard == null)
             {
                 return NotFound();
@@ -48,7 +56,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: BusinessCards/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -64,11 +73,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             
             if (ModelState.IsValid)
             {
-                _context.Add(bussinesCard);
-                await _context.SaveChangesAsync();
+                _businessCardRepo.Add(bussinesCard);
+                /*_context.Add(bussinesCard);
+                await _context.SaveChangesAsync();*/
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", bussinesCard.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", bussinesCard.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", bussinesCard.userId);
             return View(bussinesCard);
         }
 
@@ -80,12 +91,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var bussinesCard = await _context.BusinessCards.FindAsync(id);
+            var bussinesCard = _businessCardRepo.GetById(id.Value);
+            //var bussinesCard = await _context.BusinessCards.FindAsync(id);
             if (bussinesCard == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", bussinesCard.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", bussinesCard.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", bussinesCard.userId);
             return View(bussinesCard);
         }
 
@@ -105,8 +118,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(bussinesCard);
-                    await _context.SaveChangesAsync();
+                    _businessCardRepo.Update(bussinesCard);
+                    //_context.Update(bussinesCard);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -121,7 +135,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", bussinesCard.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", bussinesCard.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", bussinesCard.userId);
             return View(bussinesCard);
         }
 
@@ -133,9 +148,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var bussinesCard = await _context.BusinessCards
+            var bussinesCard = _businessCardRepo.GetById(id.Value);
+           /* var bussinesCard = await _context.BusinessCards
                 .Include(b => b.User)
-                .FirstOrDefaultAsync(m => m.bcId == id);
+                .FirstOrDefaultAsync(m => m.bcId == id);*/
             if (bussinesCard == null)
             {
                 return NotFound();
@@ -149,19 +165,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var bussinesCard = await _context.BusinessCards.FindAsync(id);
+            var bussinesCard = _businessCardRepo.GetById(id);
+            //var bussinesCard = await _context.BusinessCards.FindAsync(id);
             if (bussinesCard != null)
             {
-                _context.BusinessCards.Remove(bussinesCard);
+                _businessCardRepo.Delete(bussinesCard.userId);
+                //_context.BusinessCards.Remove(bussinesCard);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BussinesCardExists(int id)
         {
-            return _context.BusinessCards.Any(e => e.bcId == id);
+            return _businessCardRepo.GetById(id) != null;
+            //return _context.BusinessCards.Any(e => e.bcId == id);
         }
     }
 }
