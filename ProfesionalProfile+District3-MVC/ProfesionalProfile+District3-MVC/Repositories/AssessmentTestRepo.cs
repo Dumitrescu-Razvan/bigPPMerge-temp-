@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class AssessmentTestRepo : IAssessmentTestRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public AssessmentTestRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public AssessmentTestRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.AssessmentTest.Add(item);
+                context.AssessmentTests.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var assessmentTest = context.AssessmentTest.Find(id);
-                context.AssessmentTest.Remove(assessmentTest);
+                var assessmentTestsId = context.AssessmentTests.Find(id);
+                context.AssessmentTests.Remove(assessmentTestsId);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.AssessmentTest.ToList();
+                return context.AssessmentTests.ToList();
             }
         }
 
@@ -43,15 +43,15 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.AssessmentTest.Find(id);
+                return context.AssessmentTests.Find(id);
             }
         }
 
-        public void Update(AssessmentTest assessmentTest)
+        public void Update(AssessmentTest assessmentTests)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.AssessmentTest.Update(assessmentTest);
+                context.AssessmentTests.Update(assessmentTests);
                 context.SaveChanges();
             }
         }
@@ -59,7 +59,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.AssessmentTest.Where(x => x.testName == testName).Select(x => x.assessmentTestId).FirstOrDefault();
+                return context.AssessmentTests.Where(x => x.testName == testName).Select(x => x.assessmentTestId).FirstOrDefault();
             }
         } 
     }

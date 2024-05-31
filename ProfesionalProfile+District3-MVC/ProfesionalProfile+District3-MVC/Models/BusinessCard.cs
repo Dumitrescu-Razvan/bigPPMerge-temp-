@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProfesionalProfile_District3_MVC.Models
 {
-    public class BussinesCard
+    public class BusinessCard
     {
         public int bcId { get; set;}
         public int userId { get; set; }

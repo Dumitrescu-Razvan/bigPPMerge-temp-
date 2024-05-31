@@ -1,29 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class CertificateRepo : ICertificateRepo
+    public class AnswerRepo : IAnswerRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-
-        public CertificateRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public AnswerRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
-
-        public void Add(Certificate item)
+        public void Add(Answer item)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.Certificate.Add(item);
+                    context.Answers.Add(item);
                     context.SaveChanges();
                 }
             }
@@ -39,8 +34,8 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    var certificate = context.Certificate.Find(id);
-                    context.Certificate.Remove(certificate);
+                    var answer = context.Answers.Find(id);
+                    context.Answers.Remove(answer);
                     context.SaveChanges();
                 }
             }
@@ -50,13 +45,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public ICollection<Certificate> GetAll()
+        public ICollection<Answer> GetAll()
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Certificate.ToList();
+                    return context.Answers.ToList();
                 }
             }
             catch (Exception ex)
@@ -65,13 +60,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public Certificate GetById(int id)
+        public Answer GetById(int id)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Certificate.Find(id);
+                    return context.Answers.Find(id);
                 }
             }
             catch (Exception ex)
@@ -80,14 +75,29 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public void Update(Certificate certificate)
+        public void Update(Answer answer)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.Certificate.Update(certificate);
+                    context.Answers.Update(answer);
                     context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ICollection<Answer> GetAnswers(int QuestionId)
+        {
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.Answers.Where(x => x.questionId == QuestionId).ToList();
                 }
             }
             catch (Exception ex)

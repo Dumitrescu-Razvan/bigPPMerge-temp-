@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class NotificationRepo : INotificationRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public NotificationRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public NotificationRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Notification.Add(item);
+                context.Notifications.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var notification = context.Notification.Find(id);
-                context.Notification.Remove(notification);
+                var notification = context.Notifications.Find(id);
+                context.Notifications.Remove(notification);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Notification.ToList();
+                return context.Notifications.ToList();
             }
         }
 
@@ -43,7 +43,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Notification.Find(id);
+                return context.Notifications.Find(id);
             }
         }
 
@@ -51,16 +51,16 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Notification.Update(notification);
+                context.Notifications.Update(notification);
                 context.SaveChanges();
             }
         }
-        // List<Notification> ProfessionalProfile.Interfaces.INotificationRepo.GetAllByUserId(int)' is not implemented
+        // List<Notification> ProfesionalProfile_District3_MVC.Interfaces.INotificationRepo.GetAllByUserId(int)' is not implemented
         public List<Notification> GetAllByUserId(int id)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Notification.Where(n => n.userId == id).ToList();
+                return context.Notifications.Where(n => n.userId == id).ToList();
                 
             }
         }

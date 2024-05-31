@@ -19,14 +19,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             _context = context;
         }
 
-        // GET: BussinesCards
+        // GET: BusinessCards
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.BussinesCards.Include(b => b.User);
+            var applicationDbContext = _context.BusinessCards.Include(b => b.User);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: BussinesCards/Details/5
+        // GET: BusinessCards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +34,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var bussinesCard = await _context.BussinesCards
+            var bussinesCard = await _context.BusinessCards
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(m => m.bcId == id);
             if (bussinesCard == null)
@@ -45,19 +45,19 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(bussinesCard);
         }
 
-        // GET: BussinesCards/Create
+        // GET: BusinessCards/Create
         public IActionResult Create()
         {
             ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
-        // POST: BussinesCards/Create
+        // POST: BusinessCards/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("bcId,userId,summary,uniqueUrl")] BussinesCard bussinesCard)
+        public async Task<IActionResult> Create([Bind("bcId,userId,summary,uniqueUrl")] BusinessCard bussinesCard)
         {
             ModelState.Remove("User");
             ModelState.Remove("keySkills");
@@ -72,7 +72,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(bussinesCard);
         }
 
-        // GET: BussinesCards/Edit/5
+        // GET: BusinessCards/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,7 +80,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var bussinesCard = await _context.BussinesCards.FindAsync(id);
+            var bussinesCard = await _context.BusinessCards.FindAsync(id);
             if (bussinesCard == null)
             {
                 return NotFound();
@@ -89,12 +89,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(bussinesCard);
         }
 
-        // POST: BussinesCards/Edit/5
+        // POST: BusinessCards/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("bcId,userId,summary,uniqueUrl")] BussinesCard bussinesCard)
+        public async Task<IActionResult> Edit(int id, [Bind("bcId,userId,summary,uniqueUrl")] BusinessCard bussinesCard)
         {
             if (id != bussinesCard.bcId)
             {
@@ -125,7 +125,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(bussinesCard);
         }
 
-        // GET: BussinesCards/Delete/5
+        // GET: BusinessCards/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,7 +133,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var bussinesCard = await _context.BussinesCards
+            var bussinesCard = await _context.BusinessCards
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(m => m.bcId == id);
             if (bussinesCard == null)
@@ -144,15 +144,15 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(bussinesCard);
         }
 
-        // POST: BussinesCards/Delete/5
+        // POST: BusinessCards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var bussinesCard = await _context.BussinesCards.FindAsync(id);
+            var bussinesCard = await _context.BusinessCards.FindAsync(id);
             if (bussinesCard != null)
             {
-                _context.BussinesCards.Remove(bussinesCard);
+                _context.BusinessCards.Remove(bussinesCard);
             }
 
             await _context.SaveChangesAsync();
@@ -161,7 +161,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 
         private bool BussinesCardExists(int id)
         {
-            return _context.BussinesCards.Any(e => e.bcId == id);
+            return _context.BusinessCards.Any(e => e.bcId == id);
         }
     }
 }

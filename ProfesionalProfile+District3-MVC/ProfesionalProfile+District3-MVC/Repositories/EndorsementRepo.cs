@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class EndorsementRepo : IEndorsementRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public EndorsementRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public EndorsementRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Endorsement.Add(item);
+                context.Endorsements.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var endorsement = context.Endorsement.Find(id);
-                context.Endorsement.Remove(endorsement);
+                var endorsement = context.Endorsements.Find(id);
+                context.Endorsements.Remove(endorsement);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Endorsement.ToList();
+                return context.Endorsements.ToList();
             }
         }
 
@@ -43,7 +43,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Endorsement.Find(id);
+                return context.Endorsements.Find(id);
             }
         }
 
@@ -51,7 +51,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Endorsement.Update(endorsement);
+                context.Endorsements.Update(endorsement);
                 context.SaveChanges();
             }
         }

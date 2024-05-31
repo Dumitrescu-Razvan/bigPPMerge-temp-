@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class PrivacyRepo : IPrivacyRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public PrivacyRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public PrivacyRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Privacy.Add(item);
+                context.Privacies.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var privacy = context.Privacy.Find(id);
-                context.Privacy.Remove(privacy);
+                var privacy = context.Privacies.Find(id);
+                context.Privacies.Remove(privacy);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Privacy.ToList();
+                return context.Privacies.ToList();
             }
         }
 
@@ -43,7 +43,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Privacy.Find(id);
+                return context.Privacies.Find(id);
             }
         }
 
@@ -51,7 +51,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Privacy.Update(privacy);
+                context.Privacies.Update(privacy);
                 context.SaveChanges();
             }
         }

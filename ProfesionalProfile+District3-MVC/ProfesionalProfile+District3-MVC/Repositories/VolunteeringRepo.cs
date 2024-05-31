@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class VolunteeringRepo : IVolunteeringRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public VolunteeringRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public VolunteeringRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Volunteering.Add(item);
+                context.Volunteerings.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var volunteering = context.Volunteering.Find(id);
-                context.Volunteering.Remove(volunteering);
+                var volunteering = context.Volunteerings.Find(id);
+                context.Volunteerings.Remove(volunteering);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Volunteering.ToList();
+                return context.Volunteerings.ToList();
             }
         }
 
@@ -43,7 +43,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Volunteering.Find(id);
+                return context.Volunteerings.Find(id);
             }
         }
 
@@ -51,7 +51,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Volunteering.Update(volunteering);
+                context.Volunteerings.Update(volunteering);
                 context.SaveChanges();
             }
         }

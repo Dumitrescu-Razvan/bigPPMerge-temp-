@@ -24,7 +24,7 @@ namespace ProfesionalProfile_District3_MVC.Models
         public int? GroupId { get; set; }
         public Group? Group { get; set; }
 
-        // From ProfessionalProfile
+        // From ProfesionalProfile_District3_MVC
 
         public string? Summary { get; set; }
         public bool? DarkTheme { get; set; }
@@ -33,7 +33,7 @@ namespace ProfesionalProfile_District3_MVC.Models
 
         
 
-        // <------------------------------------ ProfessionalProfile ------------------------------------>
+        // <------------------------------------ ProfesionalProfile_District3_MVC ------------------------------------>
         /**public int userId { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }

@@ -1,24 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class AnswerRepo : IAnswerRepo
+    public class AssessmentResultRepo : IAssessmentResultRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public AnswerRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+
+        public AssessmentResultRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
-        public void Add(Answer item)
+        public void Add(AssessmentResult item)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.Answers.Add(item);
+                    context.AssessmentResults.Add(item);
                     context.SaveChanges();
                 }
             }
@@ -34,8 +35,8 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    var answer = context.Answers.Find(id);
-                    context.Answers.Remove(answer);
+                    var AssessmentResults = context.AssessmentResults.Find(id);
+                    context.AssessmentResults.Remove(AssessmentResults);
                     context.SaveChanges();
                 }
             }
@@ -45,13 +46,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public ICollection<Answer> GetAll()
+        public ICollection<AssessmentResult> GetAll()
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Answers.ToList();
+                    return context.AssessmentResults.ToList();
                 }
             }
             catch (Exception ex)
@@ -60,13 +61,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public Answer GetById(int id)
+        public AssessmentResult GetById(int id)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Answers.Find(id);
+                    return context.AssessmentResults.Find(id);
                 }
             }
             catch (Exception ex)
@@ -75,13 +76,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public void Update(Answer answer)
+        public void Update(AssessmentResult AssessmentResults)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.Answers.Update(answer);
+                    context.AssessmentResults.Update(AssessmentResults);
                     context.SaveChanges();
                 }
             }
@@ -91,13 +92,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public ICollection<Answer> GetAnswers(int QuestionId)
+        public ICollection<AssessmentResult> GetAssessmentResultsByUserId(int userId)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Answers.Where(x => x.questionId == QuestionId).ToList();
+                    return context.AssessmentResults.Where(x => x.userId == userId).ToList();
                 }
             }
             catch (Exception ex)

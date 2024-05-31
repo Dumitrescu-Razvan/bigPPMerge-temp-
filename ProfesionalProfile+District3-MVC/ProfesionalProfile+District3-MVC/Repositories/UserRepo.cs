@@ -1,25 +1,32 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class AssessmentResultRepo : IAssessmentResultRepo
+    public class UserRepo : IUserRepoInterface
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-
-        public AssessmentResultRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;    
+        
+        public UserRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
-        public void Add(AssessmentResult item)
+        public void Add(User item)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.AssessmentResult.Add(item);
+                    context.User.Add(item);
                     context.SaveChanges();
                 }
             }
@@ -31,12 +38,12 @@ namespace ProfessionalProfile.repo
 
         public void Delete(int id)
         {
-            try
-            {
+            try 
+            {        
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    var assessmentResult = context.AssessmentResult.Find(id);
-                    context.AssessmentResult.Remove(assessmentResult);
+                    var user = context.User.Find(id);
+                    context.User.Remove(user);
                     context.SaveChanges();
                 }
             }
@@ -46,13 +53,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public ICollection<AssessmentResult> GetAll()
+        public ICollection<User> GetAll()
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.AssessmentResult.ToList();
+                    return context.User.ToList();
                 }
             }
             catch (Exception ex)
@@ -61,13 +68,13 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public AssessmentResult GetById(int id)
+        public User GetById(int id)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.AssessmentResult.Find(id);
+                    return context.User.Find(id);
                 }
             }
             catch (Exception ex)
@@ -76,29 +83,14 @@ namespace ProfessionalProfile.repo
             }
         }
 
-        public void Update(AssessmentResult assessmentResult)
+        public void Update(User user)
         {
             try
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.AssessmentResult.Update(assessmentResult);
+                    context.User.Update(user);
                     context.SaveChanges();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public ICollection<AssessmentResult> GetAssessmentResultsByUserId(int userId)
-        {
-            try
-            {
-                using (var context = _contextFactory.CreateDbContext())
-                {
-                    return context.AssessmentResult.Where(x => x.userId == userId).ToList();
                 }
             }
             catch (Exception ex)

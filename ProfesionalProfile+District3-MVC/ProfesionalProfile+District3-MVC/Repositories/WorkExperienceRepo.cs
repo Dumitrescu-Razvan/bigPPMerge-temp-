@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class WorkExperienceRepo : IWorkExperienceRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public WorkExperienceRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public WorkExperienceRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.WorkExperience.Add(item);
+                context.WorkExperiences.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var workExperience = context.WorkExperience.Find(id);
-                context.WorkExperience.Remove(workExperience);
+                var workExperience = context.WorkExperiences.Find(id);
+                context.WorkExperiences.Remove(workExperience);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.WorkExperience.ToList();
+                return context.WorkExperiences.ToList();
             }
         }
 
@@ -43,7 +43,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.WorkExperience.Find(id);
+                return context.WorkExperiences.Find(id);
             }
         }
 
@@ -51,7 +51,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.WorkExperience.Update(workExperience);
+                context.WorkExperiences.Update(workExperience);
                 context.SaveChanges();
             }
         }

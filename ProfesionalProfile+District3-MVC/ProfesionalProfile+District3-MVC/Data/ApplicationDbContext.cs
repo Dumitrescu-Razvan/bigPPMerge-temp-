@@ -12,10 +12,10 @@ namespace ProfesionalProfile_District3_MVC.Data
         {
         }
 
-        // <------------------------------------ ProfessionalProfile ------------------------------------>
+        // <------------------------------------ ProfesionalProfile_District3_MVC ------------------------------------>
 
         public DbSet<AssessmentResult> AssessmentResults { get; set; }
-        public DbSet<BussinesCard> BussinesCards { get; set; }
+        public DbSet<BusinessCard> BusinessCards { get; set; }
         public DbSet<Certificate> Certificates { get; set; }
         public DbSet<Education> Educations { get; set; }
 
@@ -50,7 +50,7 @@ namespace ProfesionalProfile_District3_MVC.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // <------------------------------------ ProfessionalProfile ------------------------------------>
+            // <------------------------------------ ProfesionalProfile_District3_MVC ------------------------------------>
 
             modelBuilder.Entity<Endorsement>(Endorsement =>
             {
@@ -111,7 +111,7 @@ namespace ProfesionalProfile_District3_MVC.Data
                     .WithMany()
                     .HasForeignKey(a => a.userId);
             });
-            modelBuilder.Entity<BussinesCard>(BussinesCard => { BussinesCard.HasKey(a => a.bcId); });
+            modelBuilder.Entity<BusinessCard>(BusinessCard => { BusinessCard.HasKey(a => a.bcId); });
             modelBuilder.Entity<AssessmentResult>(AssessmentResult =>
             {
                 AssessmentResult.HasKey(a => a.assesmentResultId);

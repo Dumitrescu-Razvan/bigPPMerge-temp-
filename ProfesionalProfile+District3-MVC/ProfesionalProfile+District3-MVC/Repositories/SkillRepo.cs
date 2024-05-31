@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class SkillRepo : ISkillRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-        public SkillRepo(IDbContextFactory<DataContext> contextFactory)
+        public SkillRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -19,7 +19,7 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.Skill.Add(item);
+                    context.Skills.Add(item);
                     context.SaveChanges();
                 }
             }
@@ -35,8 +35,8 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    var item = context.Skill.Find(id);
-                    context.Skill.Remove(item);
+                    var item = context.Skills.Find(id);
+                    context.Skills.Remove(item);
                     context.SaveChanges();
                 }
             }
@@ -52,7 +52,7 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Skill.ToList();
+                    return context.Skills.ToList();
                 }
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Skill.Find(id);
+                    return context.Skills.Find(id);
                 }
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.Skill.Where(x => x.name == name).FirstOrDefault().skillId;
+                    return context.Skills.Where(x => x.name == name).FirstOrDefault().skillId;
                 }
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ namespace ProfessionalProfile.repo
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    context.Skill.Update(item);
+                    context.Skills.Update(item);
                     context.SaveChanges();
                 }
             }

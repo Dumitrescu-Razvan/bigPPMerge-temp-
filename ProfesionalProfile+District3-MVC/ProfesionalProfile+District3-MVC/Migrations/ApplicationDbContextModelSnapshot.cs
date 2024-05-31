@@ -190,7 +190,7 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.ToTable("BlockedProfile");
                 });
 
-            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BussinesCard", b =>
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BusinessCard", b =>
                 {
                     b.Property<int>("bcId")
                         .ValueGeneratedOnAdd()
@@ -1091,7 +1091,7 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BussinesCard", b =>
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BusinessCard", b =>
                 {
                     b.HasOne("ProfesionalProfile_District3_MVC.Models.User", "User")
                         .WithMany()
@@ -1215,7 +1215,7 @@ namespace ProfesionalProfile_District3_MVC.Migrations
 
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Skill", b =>
                 {
-                    b.HasOne("ProfesionalProfile_District3_MVC.Models.BussinesCard", null)
+                    b.HasOne("ProfesionalProfile_District3_MVC.Models.BusinessCard", null)
                         .WithMany("keySkills")
                         .HasForeignKey("BussinesCardbcId");
                 });
@@ -1257,7 +1257,7 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BussinesCard", b =>
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.BusinessCard", b =>
                 {
                     b.Navigation("keySkills");
                 });

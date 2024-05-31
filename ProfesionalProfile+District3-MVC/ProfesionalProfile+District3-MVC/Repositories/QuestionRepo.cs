@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProfessionalProfile.DatabaseContext;
-using ProfessionalProfile.Domain;
-using ProfessionalProfile.Interfaces;
+using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
-namespace ProfessionalProfile.repo
+namespace ProfesionalProfile_District3_MVC.Repositories
 {
     public class QuestionRepo : IQuestionRepo
     {
-        private readonly IDbContextFactory<DataContext> _contextFactory;
-        public QuestionRepo(IDbContextFactory<DataContext> contextFactory)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public QuestionRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -16,7 +16,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Question.Add(item);
+                context.Questions.Add(item);
                 context.SaveChanges();
             }
         }
@@ -25,8 +25,8 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var question = context.Question.Find(id);
-                context.Question.Remove(question);
+                var question = context.Questions.Find(id);
+                context.Questions.Remove(question);
                 context.SaveChanges();
             }
         }
@@ -35,7 +35,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Question.ToList();
+                return context.Questions.ToList();
             }
         }
 
@@ -43,7 +43,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Question.Find(id);
+                return context.Questions.Find(id);
             }
         }
 
@@ -51,17 +51,17 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                context.Question.Update(question);
+                context.Questions.Update(question);
                 context.SaveChanges();
             }
         }
-        //Interface member 'List<Question> ProfessionalProfile.Interfaces.IQuestionRepo.GetAllByTestId(int)' is not implemented
-        //Interface member 'int ProfessionalProfile.Interfaces.IQuestionRepo.GetIdByNameAndAssessmentId(string, int)' is not implemented
+        //Interface member 'List<Question> ProfesionalProfile_District3_MVC.Interfaces.IQuestionRepo.GetAllByTestId(int)' is not implemented
+        //Interface member 'int ProfesionalProfile_District3_MVC.Interfaces.IQuestionRepo.GetIdByNameAndAssessmentId(string, int)' is not implemented
         public List<Question> GetAllByTestId(int id)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Question.Where(x => x.assesmentTestId == id).ToList();
+                return context.Questions.Where(x => x.assesmentTestId == id).ToList();
             }
         }
         
@@ -69,7 +69,7 @@ namespace ProfessionalProfile.repo
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Question.Where(x => x.questionText == question && x.assesmentTestId == assessmentId).Select(x => x.questionId).FirstOrDefault();
+                return context.Questions.Where(x => x.questionText == question && x.assesmentTestId == assessmentId).Select(x => x.questionId).FirstOrDefault();
             }
         }
     }
