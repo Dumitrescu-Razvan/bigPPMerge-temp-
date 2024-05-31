@@ -12,14 +12,9 @@ using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class AnswersController : Controller
+    public class AnswersController(IAnswerRepo _answerRepo) : Controller
     {
-        private readonly IAnswerRepo _answerRepo;
-
-        public AnswersController(IAnswerRepo _answerRepo)
-        {
-            this._answerRepo = _answerRepo;
-        }
+        private readonly IAnswerRepo _answerRepo = _answerRepo;
 
         // GET: Answers
         public async Task<IActionResult> Index()
