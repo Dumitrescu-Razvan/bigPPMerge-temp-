@@ -7,23 +7,28 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class BlockedProfilesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private BlockedProfileRepository blockedProfileRepository;
+        private UserRepository userRepository;
 
         public BlockedProfilesController(ApplicationDbContext context)
         {
-            _context = context;
+            blockedProfileRepository = new BlockedProfileRepository(context);
+            userRepository = new UserRepository(context);
         }
 
         // GET: BlockedProfiles
         public async Task<IActionResult> Index()
         {
+            /*
             var applicationDbContext = _context.BlockedProfile.Include(b => b.User);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await applicationDbContext.ToListAsync());*/
+            return View(blockedProfileRepository.GetAll());
         }
 
         // GET: BlockedProfiles/Details/5
@@ -33,10 +38,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
+            /*
             var blockedProfile = await _context.BlockedProfile
                 .Include(b => b.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var blockedProfile = blockedProfileRepository.GetById(id.Value);
             if (blockedProfile == null)
             {
                 return NotFound();
@@ -48,7 +54,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: BlockedProfiles/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            /*
+            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");*/
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id");
             return View();
         }
 
@@ -61,11 +69,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                /*
                 _context.Add(blockedProfile);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();*/
+                blockedProfileRepository.Add(blockedProfile);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", blockedProfile.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", blockedProfile.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", blockedProfile.UserId);
             return View(blockedProfile);
         }
 
@@ -77,12 +88,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var blockedProfile = await _context.BlockedProfile.FindAsync(id);
+            //var blockedProfile = await _context.BlockedProfile.FindAsync(id);
+            var blockedProfile = blockedProfileRepository.GetById(id.Value);
             if (blockedProfile == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", blockedProfile.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", blockedProfile.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", blockedProfile.UserId);
             return View(blockedProfile);
         }
 
@@ -102,8 +115,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
+                    /*
                     _context.Update(blockedProfile);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();*/
+                    blockedProfileRepository.Update(blockedProfile);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,7 +133,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", blockedProfile.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", blockedProfile.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", blockedProfile.UserId);
             return View(blockedProfile);
         }
 
@@ -129,10 +145,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
+            /*
             var blockedProfile = await _context.BlockedProfile
                 .Include(b => b.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var blockedProfile = blockedProfileRepository.GetById(id.Value);
             if (blockedProfile == null)
             {
                 return NotFound();
@@ -146,19 +163,30 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var blockedProfile = await _context.BlockedProfile.FindAsync(id);
+            //var blockedProfile = await _context.BlockedProfile.FindAsync(id);
+            var blockedProfile = blockedProfileRepository.GetById(id);
             if (blockedProfile != null)
             {
-                _context.BlockedProfile.Remove(blockedProfile);
+                //_context.BlockedProfile.Remove(blockedProfile);
+                blockedProfileRepository.Delete(blockedProfile.Id);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BlockedProfileExists(int id)
         {
-            return _context.BlockedProfile.Any(e => e.Id == id);
+            //return _context.BlockedProfile.Any(e => e.Id == id);
+            var blockedProfile = blockedProfileRepository.GetById(id);
+            if (blockedProfile != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

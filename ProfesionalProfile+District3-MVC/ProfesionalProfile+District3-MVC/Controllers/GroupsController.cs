@@ -7,22 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class GroupsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private GroupRepository groupRepository;
+        private UserRepository userRepository;
 
         public GroupsController(ApplicationDbContext context)
         {
-            _context = context;
+            groupRepository = new GroupRepository(context);
+            userRepository = new UserRepository(context);
         }
 
         // GET: Groups
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Group.ToListAsync());
+            //return View(await _context.Group.ToListAsync());
+            return View(groupRepository.GetAll());
         }
 
         // GET: Groups/Details/5
@@ -33,8 +37,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Group
-                .FirstOrDefaultAsync(m => m.Id == id);
+            /*var @group = await _context.Group
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var @group = groupRepository.GetById(id.Value);
             if (@group == null)
             {
                 return NotFound();
@@ -58,8 +63,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                /*
                 _context.Add(@group);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();*/
+                groupRepository.Add(@group);
                 return RedirectToAction(nameof(Index));
             }
             return View(@group);
@@ -73,7 +80,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Group.FindAsync(id);
+            //var @group = await _context.Group.FindAsync(id);
+            var @group = groupRepository.GetById(id.Value);
             if (@group == null)
             {
                 return NotFound();
@@ -97,8 +105,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
+                    /*
                     _context.Update(@group);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();*/
+                    groupRepository.Update(@group);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +134,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Group
-                .FirstOrDefaultAsync(m => m.Id == id);
+            /*var @group = await _context.Group
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var @group = groupRepository.GetById(id.Value);
             if (@group == null)
             {
                 return NotFound();
@@ -139,19 +150,23 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @group = await _context.Group.FindAsync(id);
+            //var @group = await _context.Group.FindAsync(id);
+            var @group = groupRepository.GetById(id);
             if (@group != null)
             {
-                _context.Group.Remove(@group);
+                //_context.Group.Remove(@group);
+                groupRepository.Delete(@group.Id);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool GroupExists(int id)
         {
-            return _context.Group.Any(e => e.Id == id);
+           // return _context.Group.Any(e => e.Id == id);
+          var group = groupRepository.GetById(id);
+            return group != null;
         }
     }
 }

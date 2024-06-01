@@ -9,6 +9,7 @@ using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using ProfesionalProfile_District3_MVC.Repositories;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
