@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,13 +14,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class FancierProfilesController : Controller
     {
-        private FancierProfileRepository fancierProfileRepository;
-        private UserRepository userRepository;
+        private readonly IRepoInterface<FancierProfile> fancierProfileRepository;
+        private readonly IUserRepo userRepository;
 
-        public FancierProfilesController(ApplicationDbContext context)
+        public FancierProfilesController(IRepoInterface<FancierProfile> fpRepo, IUserRepo usRepo)
         {
-            fancierProfileRepository = new FancierProfileRepository(context);
-            userRepository = new UserRepository(context);
+            fancierProfileRepository = fpRepo;
+            userRepository = usRepo;
         }
 
         // GET: FancierProfiles

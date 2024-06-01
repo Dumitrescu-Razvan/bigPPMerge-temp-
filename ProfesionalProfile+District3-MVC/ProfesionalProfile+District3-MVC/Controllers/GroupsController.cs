@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,13 +14,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class GroupsController : Controller
     {
-        private GroupRepository groupRepository;
-        private UserRepository userRepository;
+        private readonly IRepoInterface<Group> groupRepository;
+        private readonly IUserRepo userRepository;
 
-        public GroupsController(ApplicationDbContext context)
+        public GroupsController(IRepoInterface<Group> groRepo, IUserRepo usRepo)
         {
-            groupRepository = new GroupRepository(context);
-            userRepository = new UserRepository(context);
+            groupRepository = groRepo;
+            userRepository = usRepo;
         }
 
         // GET: Groups

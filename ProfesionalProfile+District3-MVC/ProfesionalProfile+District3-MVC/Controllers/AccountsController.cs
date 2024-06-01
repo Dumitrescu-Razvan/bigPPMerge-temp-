@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,13 +14,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class AccountsController : Controller
     {
-        private AccountRepository accountRepository;
-        private UserRepository userRepository;
+        private readonly IRepoInterface<Account> accountRepository;
+        private readonly IUserRepo userRepository;
 
-        public AccountsController(ApplicationDbContext context)
+        public AccountsController(IRepoInterface<Account> acRepo, IUserRepo usRepo)
         {
-            accountRepository = new AccountRepository(context);
-            userRepository = new UserRepository(context);
+            accountRepository = acRepo;
+            userRepository = usRepo;
         }
 
         // GET: Accounts

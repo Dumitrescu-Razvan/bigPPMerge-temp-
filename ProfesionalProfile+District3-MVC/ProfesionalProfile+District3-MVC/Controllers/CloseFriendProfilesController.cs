@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,13 +14,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class CloseFriendProfilesController : Controller
     {
-       private CloseFriendsProfileRepository closeFriendsProfileRepository;
-        private UserRepository userRepository;
-
-        public CloseFriendProfilesController(ApplicationDbContext context)
+        private readonly IRepoInterface<CloseFriendProfile> closeFriendsProfileRepository;
+        private readonly IUserRepo userRepository;
+        public CloseFriendProfilesController(IRepoInterface<CloseFriendProfile> clRepo, IUserRepo usRepo)
         {
-            closeFriendsProfileRepository = new CloseFriendsProfileRepository(context);
-            userRepository = new UserRepository(context);
+            closeFriendsProfileRepository = clRepo;
+            userRepository = usRepo;
         }
 
         // GET: CloseFriendProfiles

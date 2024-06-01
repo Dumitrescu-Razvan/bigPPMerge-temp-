@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,11 +14,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class PostsController : Controller
     {
-        private PostRepository postRepository;
+         private readonly IRepoInterface<Post> postRepository;
 
-        public PostsController(ApplicationDbContext context)
+        public PostsController(IRepoInterface<Post> psRepo)
         {
-            postRepository = new PostRepository(context);
+            postRepository = psRepo;
         }
 
         // GET: Posts
