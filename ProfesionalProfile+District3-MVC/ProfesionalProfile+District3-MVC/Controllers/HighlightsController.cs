@@ -14,17 +14,20 @@ namespace ProfesionalProfile_District3_MVC.Controllers
     public class HighlightsController : Controller
     {
         private HighlightRepository highlightRepository;
+        private UserRepository userRepository;
 
         public HighlightsController(ApplicationDbContext context)
         {
             highlightRepository = new HighlightRepository(context);
+            userRepository = new UserRepository(context);
         }
 
         // GET: Highlights
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Highlight.Include(h => h.User);
-            return View(await applicationDbContext.ToListAsync());
+            ///var applicationDbContext = _context.Highlight.Include(h => h.User);
+            var index = highlightRepository.GetAll();
+            return View(index);
         }
 
         // GET: Highlights/Details/5
@@ -34,10 +37,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
+            /*
             var highlight = await _context.Highlight
                 .Include(h => h.User)
-                .FirstOrDefaultAsync(m => m.HighlightId == id);
+                .FirstOrDefaultAsync(m => m.HighlightId == id);*/
+
+            int idInt = id.Value;
+            var highlight = highlightRepository.GetById(idInt);
+
             if (highlight == null)
             {
                 return NotFound();
@@ -49,7 +56,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Highlights/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            ///ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            ViewData["UserID"] = new SelectList(userRepository.GetAll(), "Id", "Id");
             return View();
         }
 
@@ -62,11 +70,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(highlight);
-                await _context.SaveChangesAsync();
+                //_context.Add(highlight);
+                //await _context.SaveChangesAsync();
+                highlightRepository.Add(highlight);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", highlight.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", highlight.UserId);
+            ViewData["UserID"] = new SelectList(userRepository.GetAll(), "Id", "Id", highlight.UserId);
             return View(highlight);
         }
 
@@ -78,12 +88,15 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var highlight = await _context.Highlight.FindAsync(id);
+            //var highlight = await _context.Highlight.FindAsync(id);
+            int idInt = id.Value;
+            var highlight = highlightRepository.GetById(idInt);
             if (highlight == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", highlight.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", highlight.UserId);
+            ViewData["UserID"] = new SelectList(userRepository.GetAll(), "Id", "Id", highlight.UserId);
             return View(highlight);
         }
 
@@ -103,8 +116,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(highlight);
-                    await _context.SaveChangesAsync();
+                    //_context.Update(highlight);
+                    //await _context.SaveChangesAsync();
+                    highlightRepository.Update(highlight);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +133,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", highlight.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", highlight.UserId);
+            ViewData["UserID"] = new SelectList(userRepository.GetAll(), "Id", "Id", highlight.UserId);
             return View(highlight);
         }
 
@@ -131,9 +146,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var highlight = await _context.Highlight
+            /*var highlight = await _context.Highlight
                 .Include(h => h.User)
-                .FirstOrDefaultAsync(m => m.HighlightId == id);
+                .FirstOrDefaultAsync(m => m.HighlightId == id);*/
+
+            int idInt = id.Value;
+            var highlight = highlightRepository.GetById(idInt);
+
             if (highlight == null)
             {
                 return NotFound();
@@ -147,19 +166,31 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var highlight = await _context.Highlight.FindAsync(id);
+            //var highlight = await _context.Highlight.FindAsync(id);
+            int idInt = id;
+            var highlight = highlightRepository.GetById(idInt);
             if (highlight != null)
             {
-                _context.Highlight.Remove(highlight);
+                //_context.Highlight.Remove(highlight);
+                highlightRepository.Delete(highlight.HighlightId);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool HighlightExists(int id)
         {
-            return _context.Highlight.Any(e => e.HighlightId == id);
+            //return _context.Highlight.Any(e => e.HighlightId == id);
+            var highlight = highlightRepository.GetById(id);
+            if (highlight != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

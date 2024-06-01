@@ -14,17 +14,20 @@ namespace ProfesionalProfile_District3_MVC.Controllers
     public class CloseFriendProfilesController : Controller
     {
        private CloseFriendsProfileRepository closeFriendsProfileRepository;
+        private UserRepository userRepository;
 
         public CloseFriendProfilesController(ApplicationDbContext context)
         {
             closeFriendsProfileRepository = new CloseFriendsProfileRepository(context);
+            userRepository = new UserRepository(context);
         }
 
         // GET: CloseFriendProfiles
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.CloseFriendProfile.Include(c => c.User);
-            return View(await applicationDbContext.ToListAsync());
+         /* var applicationDbContext = _context.CloseFriendProfile.Include(c => c.User);
+            return View(await applicationDbContext.ToListAsync());*/
+         return View(closeFriendsProfileRepository.GetAll());
         }
 
         // GET: CloseFriendProfiles/Details/5
@@ -34,10 +37,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
+            /*
             var closeFriendProfile = await _context.CloseFriendProfile
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var closeFriendProfile = closeFriendsProfileRepository.GetById(id.Value);
             if (closeFriendProfile == null)
             {
                 return NotFound();
@@ -49,7 +53,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: CloseFriendProfiles/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id");
             return View();
         }
 
@@ -62,11 +67,15 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                /*
                 _context.Add(closeFriendProfile);
                 await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));*/
+                closeFriendsProfileRepository.Add(closeFriendProfile);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", closeFriendProfile.UserId);
+            // ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", closeFriendProfile.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", closeFriendProfile.UserId);
             return View(closeFriendProfile);
         }
 
@@ -78,12 +87,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var closeFriendProfile = await _context.CloseFriendProfile.FindAsync(id);
+           // var closeFriendProfile = await _context.CloseFriendProfile.FindAsync(id);
+           var closeFriendProfile = closeFriendsProfileRepository.GetById(id.Value);
             if (closeFriendProfile == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", closeFriendProfile.UserId);
+            // ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", closeFriendProfile.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", closeFriendProfile.UserId);
             return View(closeFriendProfile);
         }
 
@@ -102,9 +113,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {
+                {/*
                     _context.Update(closeFriendProfile);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();*/
+                    closeFriendsProfileRepository.Update(closeFriendProfile);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +131,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", closeFriendProfile.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", closeFriendProfile.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", closeFriendProfile.UserId);
             return View(closeFriendProfile);
         }
 
@@ -130,10 +143,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
+            /*
             var closeFriendProfile = await _context.CloseFriendProfile
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var closeFriendProfile = closeFriendsProfileRepository.GetById(id.Value);
             if (closeFriendProfile == null)
             {
                 return NotFound();
@@ -147,19 +161,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var closeFriendProfile = await _context.CloseFriendProfile.FindAsync(id);
+            //var closeFriendProfile = await _context.CloseFriendProfile.FindAsync(id);
+            var closeFriendProfile = closeFriendsProfileRepository.GetById(id);
             if (closeFriendProfile != null)
             {
-                _context.CloseFriendProfile.Remove(closeFriendProfile);
+               // _context.CloseFriendProfile.Remove(closeFriendProfile);
+               closeFriendsProfileRepository.Delete(id);
             }
 
-            await _context.SaveChangesAsync();
+           // await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CloseFriendProfileExists(int id)
         {
-            return _context.CloseFriendProfile.Any(e => e.Id == id);
+            //return _context.CloseFriendProfile.Any(e => e.Id == id);
+            return closeFriendsProfileRepository.GetById(id) != null;
         }
     }
 }

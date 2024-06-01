@@ -4,8 +4,7 @@ using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    /*
-    public class UserRepository : IRepoInterface<AutisticUser>
+    public class UserRepository : IRepoInterface<User>
     {
         private readonly ApplicationDbContext _context;
         public UserRepository(ApplicationDbContext context)
@@ -13,7 +12,7 @@ namespace ProfesionalProfile_District3_MVC.Repositories
             _context = context;
         }
 
-        public void Add(AutisticUser item)
+        public void Add(User item)
         {
             _context.User.Add(item);
             _context.SaveChanges();
@@ -29,20 +28,20 @@ namespace ProfesionalProfile_District3_MVC.Repositories
             }
         }
 
-        public ICollection<AutisticUser> GetAll()
+        public ICollection<User> GetAll()
         {
             return _context.User.ToList();
         }
 
-        public AutisticUser GetById(int id)
+        public User GetById(int id)
         {
             return _context.User.Find(id);
         }
 
-        public void Update(AutisticUser item)
+        public void Update(User item)
         {
             _context.User.Update(item);
             _context.SaveChanges();
         }
-    }*/
+    }
 }

@@ -14,17 +14,20 @@ namespace ProfesionalProfile_District3_MVC.Controllers
     public class AccountsController : Controller
     {
         private AccountRepository accountRepository;
+        private UserRepository userRepository;
 
         public AccountsController(ApplicationDbContext context)
         {
             accountRepository = new AccountRepository(context);
+            userRepository = new UserRepository(context);
         }
 
         // GET: Accounts
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Account.Include(a => a.User);
-            return View(await applicationDbContext.ToListAsync());
+            /*var applicationDbContext = _context.Account.Include(a => a.User);
+            return View(await applicationDbContext.ToListAsync());*/
+            return View(accountRepository.GetAll());
         }
 
         // GET: Accounts/Details/5
@@ -35,9 +38,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Account
+            /*var account = await _context.Account
                 .Include(a => a.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+            var account = accountRepository.GetById(id.Value);
             if (account == null)
             {
                 return NotFound();
@@ -49,7 +53,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Accounts/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            ViewData["UserId"] = new SelectList(accountRepository.GetAll(), "Id", "Id");
             return View();
         }
 
@@ -62,11 +67,17 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                /*
                 _context.Add(account);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();*/
+
+                accountRepository.Add(account);
+
+                //accountRepository.Create(account);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", account.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", account.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", account.UserId);
             return View(account);
         }
 
@@ -78,12 +89,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Account.FindAsync(id);
+            //var account = await _context.Account.FindAsync(id);
+            var account = accountRepository.GetById(id.Value);
             if (account == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", account.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", account.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", account.UserId);
             return View(account);
         }
 
@@ -103,8 +116,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
+                    /*
                     _context.Update(account);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();*/
+                    accountRepository.Update(account);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", account.UserId);
+            //ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", account.UserId);
+            ViewData["UserId"] = new SelectList(userRepository.GetAll(), "Id", "Id", account.UserId);
             return View(account);
         }
 
@@ -131,9 +147,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Account
+           /* var account = await _context.Account
                 .Include(a => a.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
+           var account = accountRepository.GetById(id.Value);
             if (account == null)
             {
                 return NotFound();
@@ -147,19 +164,30 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var account = await _context.Account.FindAsync(id);
+            //var account = await _context.Account.FindAsync(id);
+            var account = accountRepository.GetById(id);
             if (account != null)
             {
-                _context.Account.Remove(account);
+                //_context.Account.Remove(account);
+                accountRepository.Delete(account.Id);
             }
 
-            await _context.SaveChangesAsync();
+           // await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AccountExists(int id)
         {
-            return _context.Account.Any(e => e.Id == id);
+            //return _context.Account.Any(e => e.Id == id);
+            var account = accountRepository.GetById(id);
+            if (account != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

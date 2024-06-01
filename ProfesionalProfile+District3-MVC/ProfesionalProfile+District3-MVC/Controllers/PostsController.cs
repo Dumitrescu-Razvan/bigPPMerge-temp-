@@ -23,7 +23,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Posts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Post.ToListAsync());
+            ///return View(await _context.Post.ToListAsync());
+            var posts = postRepository.GetAll();
+            return View(posts);
         }
 
         // GET: Posts/Details/5
@@ -34,13 +36,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .FirstOrDefaultAsync(m => m.Id == id);
+            int idValue = id.Value;
+            var post = postRepository.GetById(idValue);
             if (post == null)
             {
                 return NotFound();
             }
-
             return View(post);
         }
 
@@ -59,8 +60,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                /*
                 _context.Add(post);
                 await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+                */
+                postRepository.Add(post);
                 return RedirectToAction(nameof(Index));
             }
             return View(post);
@@ -74,7 +79,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post.FindAsync(id);
+            //var post = await _context.Post.FindAsync(id);
+            var post = postRepository.GetById(id.Value);
+
             if (post == null)
             {
                 return NotFound();
@@ -98,8 +105,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
+                    /*
                     _context.Update(post);
                     await _context.SaveChangesAsync();
+                    */
+                    postRepository.Update(post);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,8 +135,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .FirstOrDefaultAsync(m => m.Id == id);
+           // var post = await _context.Post
+            //    .FirstOrDefaultAsync(m => m.Id == id);
+            var post = postRepository.GetById(id.Value);
+
             if (post == null)
             {
                 return NotFound();
@@ -140,19 +152,31 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var post = await _context.Post.FindAsync(id);
+            ///var post = await _context.Post.FindAsync(id);
+           var post = postRepository.GetById(id);
             if (post != null)
             {
-                _context.Post.Remove(post);
+                ///_context.Post.Remove(post);
+                postRepository.Delete(post.Id);
             }
 
-            await _context.SaveChangesAsync();
+            ///await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
         private bool PostExists(int id)
         {
-            return _context.Post.Any(e => e.Id == id);
+            ///return _context.Post.Any(e => e.Id == id);
+            var post = postRepository.GetById(id);
+            if (post != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
