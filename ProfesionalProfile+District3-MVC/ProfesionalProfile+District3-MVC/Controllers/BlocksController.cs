@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class BlocksController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IBlocksRepository repository;
 
-        public BlocksController(ApplicationDbContext context)
+        public BlocksController(IBlocksRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Blocks
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Block.ToListAsync());
+            var blocks = await repository.GetBlocks();
+            return View(blocks);
         }
 
         // GET: Blocks/Details/5
@@ -33,8 +35,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var block = await _context.Block
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var block = await repository.GetBlock(id.Value);
+
+            if (block == null)
+            {
+                return NotFound();
+            }
             if (block == null)
             {
                 return NotFound();
@@ -56,24 +62,20 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,sender,receiver,startingTimeStamp,reason")] Block block)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(block);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddBlock(block);
             return View(block);
         }
 
         // GET: Blocks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var block = await _context.Block.FindAsync(id);
+            var block = await repository.GetBlock(id.Value);
             if (block == null)
             {
                 return NotFound();
@@ -88,30 +90,25 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,sender,receiver,startingTimeStamp,reason")] Block block)
         {
+
             if (id != block.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                await repository.UpdateBlock(block);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BlockExists(id))
                 {
-                    _context.Update(block);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!BlockExists(block.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(block);
         }
@@ -124,13 +121,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var block = await _context.Block
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var block = await repository.GetBlock(id.Value);
             if (block == null)
             {
                 return NotFound();
             }
 
+            await repository.DeleteBlock(block);
             return View(block);
         }
 
@@ -139,19 +136,19 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var block = await _context.Block.FindAsync(id);
-            if (block != null)
+            var block = await repository.GetBlock(id);
+            if (block == null)
             {
-                _context.Block.Remove(block);
+                return NotFound();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            await repository.DeleteBlock(block);
+            return View(block);
         }
 
         private bool BlockExists(int id)
         {
-            return _context.Block.Any(e => e.Id == id);
+            return repository.BlockExists(id);
         }
     }
 }
