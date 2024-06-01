@@ -12,8 +12,8 @@ namespace ProfesionalProfile_District3_MVC.Models
     {
         
         public int endorsementId { get; set; }
-        public int endorserId { get; set; }
-        public int recipientid { get; set; }
+        public string endorserId { get; set; }
+        public string recipientid { get; set; }
         public int skillId { get; set; }
 
        //navigation properties

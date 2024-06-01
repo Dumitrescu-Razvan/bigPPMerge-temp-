@@ -14,7 +14,7 @@ namespace ProfesionalProfile_District3_MVC.Models
         public string description { get; set; }
         public DateTime issuedDate { get; set; }
         public DateTime expirationDate { get; set; }
-        public int userId { get; set; }
+        public string userId { get; set; }
 
         // Navigation properties
         public virtual User User { get; set; }

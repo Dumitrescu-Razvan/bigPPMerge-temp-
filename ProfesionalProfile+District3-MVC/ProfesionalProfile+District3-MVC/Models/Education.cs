@@ -9,7 +9,7 @@ namespace ProfesionalProfile_District3_MVC.Models
     public class Education
     {
         public int educationId { get; set;}
-        public int userId { get; set; }
+        public string userId { get; set; }
         public string degree { get; set; }
         public string institution { get; set; }
         public string fieldOfStudy { get; set; }

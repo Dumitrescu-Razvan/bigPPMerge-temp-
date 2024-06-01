@@ -60,7 +60,7 @@ namespace ProfesionalProfile_District3_MVC.Repositories
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                return context.Notifications.Where(n => n.userId == id).ToList();
+                return context.Notifications.Where(n => n.userId == id.ToString()).ToList();
                 
             }
         }

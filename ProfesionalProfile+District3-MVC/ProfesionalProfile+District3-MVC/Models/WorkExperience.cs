@@ -9,7 +9,7 @@ namespace ProfesionalProfile_District3_MVC.Models
     public class WorkExperience
     {
         public int workId { get; set; }
-        public int userId { get; set; }
+        public string userId { get; set; }
         public string jobTitle { get; set; }
         public string company { get; set; }
         public string location { get; set; }
