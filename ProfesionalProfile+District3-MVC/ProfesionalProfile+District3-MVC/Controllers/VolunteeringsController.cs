@@ -7,23 +7,28 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class VolunteeringsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IVolunteeringRepo _volunteeringRepo;
+        private readonly IUserRepo _userRepo;
 
-        public VolunteeringsController(ApplicationDbContext context)
+        public VolunteeringsController(IVolunteeringRepo volunteeringRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _volunteeringRepo = volunteeringRepo;
+            _userRepo = userRepo;
         }
 
         // GET: Volunteerings
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Volunteerings.Include(v => v.User);
-            return View(await applicationDbContext.ToListAsync());
+            return View(_volunteeringRepo.GetAll());
+            //var applicationDbContext = _context.Volunteerings.Include(v => v.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Volunteerings/Details/5
@@ -33,10 +38,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
-            var volunteering = await _context.Volunteerings
+            
+            var volunteering = _volunteeringRepo.GetById(id.Value);
+            /*var volunteering = await _context.Volunteerings
                 .Include(v => v.User)
-                .FirstOrDefaultAsync(m => m.volunteeringId == id);
+                .FirstOrDefaultAsync(m => m.volunteeringId == id);*/
             if (volunteering == null)
             {
                 return NotFound();
@@ -48,7 +54,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Volunteerings/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -62,11 +69,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("User");
             if (ModelState.IsValid)
             {
-                _context.Add(volunteering);
-                await _context.SaveChangesAsync();
+                _volunteeringRepo.Add(volunteering);
+                /*_context.Add(volunteering);
+                await _context.SaveChangesAsync();*/
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", volunteering.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", volunteering.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", volunteering.userId);
             return View(volunteering);
         }
 
@@ -78,12 +87,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var volunteering = await _context.Volunteerings.FindAsync(id);
+            var volunteering = _volunteeringRepo.GetById(id.Value);
+            //var volunteering = await _context.Volunteerings.FindAsync(id);
             if (volunteering == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", volunteering.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", volunteering.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", volunteering.userId);
             return View(volunteering);
         }
 
@@ -103,8 +114,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(volunteering);
-                    await _context.SaveChangesAsync();
+                    _volunteeringRepo.Update(volunteering);
+                    //_context.Update(volunteering);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +131,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", volunteering.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", volunteering.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", volunteering.userId);
             return View(volunteering);
         }
 
@@ -131,9 +144,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var volunteering = await _context.Volunteerings
+            var volunteering = _volunteeringRepo.GetById(id.Value);
+            /*var volunteering = await _context.Volunteerings
                 .Include(v => v.User)
-                .FirstOrDefaultAsync(m => m.volunteeringId == id);
+                .FirstOrDefaultAsync(m => m.volunteeringId == id);*/
             if (volunteering == null)
             {
                 return NotFound();
@@ -147,19 +161,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var volunteering = await _context.Volunteerings.FindAsync(id);
+            var volunteering = _volunteeringRepo.GetById(id);
+            //var volunteering = await _context.Volunteerings.FindAsync(id);
             if (volunteering != null)
             {
-                _context.Volunteerings.Remove(volunteering);
+                _volunteeringRepo.Delete(id);
+                //_context.Volunteerings.Remove(volunteering);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool VolunteeringExists(int id)
         {
-            return _context.Volunteerings.Any(e => e.volunteeringId == id);
+            return _volunteeringRepo.GetAll().Any(e => e.volunteeringId == id);
+            //return _context.Volunteerings.Any(e => e.volunteeringId == id);
         }
     }
 }
