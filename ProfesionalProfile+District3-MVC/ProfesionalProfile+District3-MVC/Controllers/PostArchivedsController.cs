@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class PostArchivedsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPostArchivedRepository repository;
 
-        public PostArchivedsController(ApplicationDbContext context)
+        public PostArchivedsController(IPostArchivedRepository postArchivedRepository)
         {
-            _context = context;
+            repository = postArchivedRepository;
         }
 
         // GET: PostArchiveds
         public async Task<IActionResult> Index()
         {
-            return View(await _context.PostArchived.ToListAsync());
+            var postArchivedList = await repository.GetPostArchivedAsync();
+            return View(postArchivedList);
         }
 
         // GET: PostArchiveds/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postArchived = await _context.PostArchived
-                .FirstOrDefaultAsync(m => m.post_id == id);
+            var postArchived = await repository.GetPostArchivedByIdAsync(id.Value);
             if (postArchived == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("post_id,archive_id")] PostArchived postArchived)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(postArchived);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddPostArchivedAsync(postArchived);
             return View(postArchived);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postArchived = await _context.PostArchived.FindAsync(id);
+            var postArchived = await repository.GetPostArchivedByIdAsync(id.Value);
             if (postArchived == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(postArchived);
-                    await _context.SaveChangesAsync();
+                  await repository.UpdatePostArchivedAsync(postArchived);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PostArchivedExists(postArchived.post_id))
+                    var exists = await repository.PostArchivedExistsAsync(id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postArchived = await _context.PostArchived
-                .FirstOrDefaultAsync(m => m.post_id == id);
+            var postArchived = await repository.GetPostArchivedByIdAsync(id.Value);
             if (postArchived == null)
             {
                 return NotFound();
@@ -139,19 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var postArchived = await _context.PostArchived.FindAsync(id);
-            if (postArchived != null)
-            {
-                _context.PostArchived.Remove(postArchived);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeletePostArchivedAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool PostArchivedExists(int id)
-        {
-            return _context.PostArchived.Any(e => e.post_id == id);
         }
     }
 }

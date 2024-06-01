@@ -728,6 +728,45 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                     b.ToTable("PostSaved");
                 });
 
+            modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.PostsGAMBA", b =>
+                {
+                    b.Property<int>("Post_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Post_Id"));
+
+                    b.Property<int>("Commented_Post_Id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created_Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Location_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Media_Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Original_Post_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Owner_User_Id")
+                        .HasColumnType("int");
+
+                    b.Property<short>("Post_Type")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Post_Id");
+
+                    b.ToTable("PostsGAMBA");
+                });
+
             modelBuilder.Entity("ProfesionalProfile_District3_MVC.Models.Privacy", b =>
                 {
                     b.Property<int>("Id")

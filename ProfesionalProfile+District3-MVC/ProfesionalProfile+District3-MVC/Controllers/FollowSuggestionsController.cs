@@ -6,23 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class FollowSuggestionsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFollowSuggestionRepository repository;
 
-        public FollowSuggestionsController(ApplicationDbContext context)
+        public FollowSuggestionsController(IFollowSuggestionRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
-
         // GET: FollowSuggestions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FollowSuggestions.ToListAsync());
+            var followSuggestions = await repository.GetFollowSuggestionsAsync();
+            return View(followSuggestions);
         }
 
         // GET: FollowSuggestions/Details/5
@@ -33,8 +34,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followSuggestion = await _context.FollowSuggestions
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var followSuggestion = await repository.GetFollowSuggestionByIdAsync(id.Value);
+                
             if (followSuggestion == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,userId,username,numberOfCommonFriends,numberOfCommonGroups,numberOfCommonOrganizations,numberOfCommonTags,location")] FollowSuggestion followSuggestion)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(followSuggestion);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddFollowSuggestionAsync(followSuggestion);
             return View(followSuggestion);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followSuggestion = await _context.FollowSuggestions.FindAsync(id);
+            var followSuggestion = await repository.GetFollowSuggestionByIdAsync(id.Value);
             if (followSuggestion == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(followSuggestion);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateFollowSuggestionAsync(followSuggestion);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FollowSuggestionExists(followSuggestion.Id))
+                    var exists = await repository.FollowSuggestionExistsAsync(id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followSuggestion = await _context.FollowSuggestions
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var followSuggestion = await repository.GetFollowSuggestionByIdAsync(id.Value);
             if (followSuggestion == null)
             {
                 return NotFound();
@@ -139,19 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var followSuggestion = await _context.FollowSuggestions.FindAsync(id);
-            if (followSuggestion != null)
-            {
-                _context.FollowSuggestions.Remove(followSuggestion);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteFollowSuggestionAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FollowSuggestionExists(int id)
-        {
-            return _context.FollowSuggestions.Any(e => e.Id == id);
         }
     }
 }

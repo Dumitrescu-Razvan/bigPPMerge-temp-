@@ -202,7 +202,7 @@ namespace ProfesionalProfile_District3_MVC.Data
         // <------------------------------------ Securistii ------------------------------------>
         public DbSet<Location> Location { get; set; }
         public DbSet<Media> Media { get; set; } = null!;
-        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<PostsGAMBA> PostsGAMBA { get; set; } = null!;
         public DbSet<PostArchived> PostArchived { get; set; } = null!;
         public DbSet<PostSaved> PostSaved { get; set; } = null!;
         public DbSet<PostReported> PostReported { get; set; } = null!;
@@ -216,6 +216,7 @@ namespace ProfesionalProfile_District3_MVC.Data
         public DbSet<Comment> Comments { get; set; } = null!;
         public DbSet<FollowSuggestion> FollowSuggestions { get; set; } = null!;
 
+        public DbSet<UserGAMBA> userGAMBA { get; set; } = null!;
         public DbSet<Request> Requests { get; set; } = null!;
     }
 }

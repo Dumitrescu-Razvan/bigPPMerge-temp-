@@ -5,24 +5,27 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class ControversialFeedsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IControversialFeedRepository repository;
 
-        public ControversialFeedsController(ApplicationDbContext context)
+        public ControversialFeedsController(IControversialFeedRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: ControversialFeeds
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ControversialFeeds.ToListAsync());
+            var controversialFeeds = await repository.GetControversialFeedsAsync();
+            return View(controversialFeeds);
         }
 
         // GET: ControversialFeeds/Details/5
@@ -33,8 +36,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var controversialFeed = await _context.ControversialFeeds
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var controversialFeed = await repository.GetControversialFeedByIdAsync(id.Value);
             if (controversialFeed == null)
             {
                 return NotFound();
@@ -56,12 +58,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,ReactionThreshold,MinimumReactionCount,MinimumCommentCount")] ControversialFeed controversialFeed)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(controversialFeed);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddControversialFeedAsync(controversialFeed);
             return View(controversialFeed);
         }
 
@@ -73,7 +70,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var controversialFeed = await _context.ControversialFeeds.FindAsync(id);
+            var controversialFeed = await repository.GetControversialFeedByIdAsync(id.Value);
             if (controversialFeed == null)
             {
                 return NotFound();
@@ -97,8 +94,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(controversialFeed);
-                    await _context.SaveChangesAsync();
+                   await repository.UpdateControversialFeedAsync(controversialFeed);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var controversialFeed = await _context.ControversialFeeds
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var controversialFeed = await repository.GetControversialFeedByIdAsync(id.Value);
             if (controversialFeed == null)
             {
                 return NotFound();
@@ -139,19 +134,16 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var controversialFeed = await _context.ControversialFeeds.FindAsync(id);
-            if (controversialFeed != null)
-            {
-                _context.ControversialFeeds.Remove(controversialFeed);
-            }
-
-            await _context.SaveChangesAsync();
+          
+            
+            await repository.DeleteControversialFeedAsync(id);
+            
             return RedirectToAction(nameof(Index));
         }
 
         private bool ControversialFeedExists(int id)
         {
-            return _context.ControversialFeeds.Any(e => e.ID == id);
+            return repository.ControversialFeedExists(id);
         }
     }
 }

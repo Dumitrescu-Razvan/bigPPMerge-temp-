@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProfesionalProfile_District3_MVC.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class INIITIALLLL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -247,6 +247,26 @@ namespace ProfesionalProfile_District3_MVC.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PostSaved", x => x.save_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostsGAMBA",
+                columns: table => new
+                {
+                    Post_Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Owner_User_Id = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Commented_Post_Id = table.Column<int>(type: "int", nullable: false),
+                    Original_Post_Id = table.Column<int>(type: "int", nullable: false),
+                    Media_Path = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Post_Type = table.Column<short>(type: "smallint", nullable: false),
+                    Location_Id = table.Column<int>(type: "int", nullable: false),
+                    Created_Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostsGAMBA", x => x.Post_Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -930,6 +950,9 @@ namespace ProfesionalProfile_District3_MVC.Migrations
 
             migrationBuilder.DropTable(
                 name: "PostSaved");
+
+            migrationBuilder.DropTable(
+                name: "PostsGAMBA");
 
             migrationBuilder.DropTable(
                 name: "Privacies");

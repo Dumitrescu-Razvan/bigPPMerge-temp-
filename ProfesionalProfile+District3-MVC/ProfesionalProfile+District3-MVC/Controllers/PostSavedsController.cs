@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class PostSavedsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPostSavedsRepository repository;
 
-        public PostSavedsController(ApplicationDbContext context)
+        public PostSavedsController(IPostSavedsRepository postSavedRepository)
         {
-            _context = context;
+            repository = postSavedRepository;
         }
 
         // GET: PostSaveds
         public async Task<IActionResult> Index()
         {
-            return View(await _context.PostSaved.ToListAsync());
+            var postSaved = await repository.GetPostSavedAsync();
+            return View(postSaved);
         }
 
         // GET: PostSaveds/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postSaved = await _context.PostSaved
-                .FirstOrDefaultAsync(m => m.save_id == id);
+            var postSaved = await repository.GetPostSavedByIdAsync(id.Value);
             if (postSaved == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("save_id,post_id,user_id")] PostSaved postSaved)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(postSaved);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddPostSavedAsync(postSaved);
             return View(postSaved);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postSaved = await _context.PostSaved.FindAsync(id);
+            var postSaved = await repository.GetPostSavedByIdAsync(id.Value);
             if (postSaved == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(postSaved);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdatePostSavedAsync(postSaved);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PostSavedExists(postSaved.save_id))
+                    var exists = await repository.PostSavedExistsAsync(postSaved.save_id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postSaved = await _context.PostSaved
-                .FirstOrDefaultAsync(m => m.save_id == id);
+            var postSaved = await repository.GetPostSavedByIdAsync(id.Value);
             if (postSaved == null)
             {
                 return NotFound();
@@ -139,19 +134,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var postSaved = await _context.PostSaved.FindAsync(id);
-            if (postSaved != null)
-            {
-                _context.PostSaved.Remove(postSaved);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeletePostSavedAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PostSavedExists(int id)
-        {
-            return _context.PostSaved.Any(e => e.save_id == id);
-        }
     }
 }
