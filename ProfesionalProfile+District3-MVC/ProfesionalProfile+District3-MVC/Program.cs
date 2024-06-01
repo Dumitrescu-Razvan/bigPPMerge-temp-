@@ -21,6 +21,7 @@ builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<ISkillRepo, SkillRepo>();
 builder.Services.AddScoped<IBusinessCardRepo, BusinessCardRepo>();
 builder.Services.AddScoped<ICertificateRepo, CertificateRepo>();
+builder.Services.AddScoped<IEducationRepo, EducationRepo>();
 
 var app = builder.Build();
 

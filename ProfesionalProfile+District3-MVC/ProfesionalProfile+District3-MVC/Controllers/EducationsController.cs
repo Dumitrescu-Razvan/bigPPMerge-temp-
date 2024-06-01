@@ -7,23 +7,30 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class EducationsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IEducationRepo _educationRepo;
+        private readonly IUserRepo _userRepo;
 
-        public EducationsController(ApplicationDbContext context)
+
+        public EducationsController(IEducationRepo educationRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _educationRepo = educationRepo;
+            _userRepo = userRepo;
         }
 
         // GET: Educations
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Educations.Include(e => e.User);
-            return View(await applicationDbContext.ToListAsync());
+            var educations = _educationRepo.GetAll();
+            return View(educations);
+            //var applicationDbContext = _context.Educations.Include(e => e.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Educations/Details/5
@@ -34,9 +41,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var education = await _context.Educations
+            var education = _educationRepo.GetById(id.Value);
+            /*var education = await _context.Educations
                 .Include(e => e.User)
-                .FirstOrDefaultAsync(m => m.educationId == id);
+                .FirstOrDefaultAsync(m => m.educationId == id);*/
             if (education == null)
             {
                 return NotFound();
@@ -48,7 +56,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Educations/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -63,11 +72,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             
             if (ModelState.IsValid)
             {
-                _context.Add(education);
-                await _context.SaveChangesAsync();
+                _educationRepo.Add(education);
+                //_context.Add(education);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", education.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", education.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", education.userId);
             return View(education);
         }
 
@@ -79,12 +90,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var education = await _context.Educations.FindAsync(id);
+            var education = _educationRepo.GetById(id.Value);
+            //var education = await _context.Educations.FindAsync(id);
             if (education == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", education.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", education.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", education.userId);
             return View(education);
         }
 
@@ -104,8 +117,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(education);
-                    await _context.SaveChangesAsync();
+                    _educationRepo.Update(education);
+                    //_context.Update(education);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -120,7 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", education.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", education.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", education.userId);
             return View(education);
         }
 
@@ -132,9 +147,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var education = await _context.Educations
-                .Include(e => e.User)
-                .FirstOrDefaultAsync(m => m.educationId == id);
+            var education = _educationRepo.GetById(id.Value);
+            //var education = await _context.Educations
+            //    .Include(e => e.User)
+            //    .FirstOrDefaultAsync(m => m.educationId == id);
             if (education == null)
             {
                 return NotFound();
@@ -148,19 +164,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var education = await _context.Educations.FindAsync(id);
+            var education = _educationRepo.GetById(id);
+            //var education = await _context.Educations.FindAsync(id);
             if (education != null)
             {
-                _context.Educations.Remove(education);
+                _educationRepo.Delete(id);
+                //_context.Educations.Remove(education);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool EducationExists(int id)
         {
-            return _context.Educations.Any(e => e.educationId == id);
+            return _educationRepo.GetById(id) != null;
+            //return _context.Educations.Any(e => e.educationId == id);
         }
     }
 }
