@@ -7,22 +7,28 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class NotificationsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUserRepo _userRepo;
+        private readonly INotificationRepo _notificationRepo;
 
-        public NotificationsController(ApplicationDbContext context)
+        public NotificationsController(IUserRepo userRepo, INotificationRepo notificationRepo)
         {
-            _context = context;
+            _userRepo = userRepo;
+            _notificationRepo = notificationRepo;
         }
 
         // GET: Notifications
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Notifications.ToListAsync());
+            var notifications = _notificationRepo.GetAll();
+            return View(notifications);
+            //return View(await _context.Notifications.ToListAsync());
         }
 
         // GET: Notifications/Details/5
@@ -33,8 +39,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var notification = await _context.Notifications
-                .FirstOrDefaultAsync(m => m.notificationId == id);
+            var notification = _notificationRepo.GetById(id.Value);
+            /*var notification = await _context.Notifications
+                .FirstOrDefaultAsync(m => m.notificationId == id);*/
             if (notification == null)
             {
                 return NotFound();
@@ -58,8 +65,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(notification);
-                await _context.SaveChangesAsync();
+                _notificationRepo.Add(notification);
+                //_context.Add(notification);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(notification);
@@ -73,7 +81,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var notification = await _context.Notifications.FindAsync(id);
+            var notification = _notificationRepo.GetById(id.Value);
+            //var notification = await _context.Notifications.FindAsync(id);
             if (notification == null)
             {
                 return NotFound();
@@ -97,8 +106,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(notification);
-                    await _context.SaveChangesAsync();
+                    _notificationRepo.Update(notification);
+                    //_context.Update(notification);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +134,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var notification = await _context.Notifications
-                .FirstOrDefaultAsync(m => m.notificationId == id);
+            var notification = _notificationRepo.GetById(id.Value);
+            //var notification = await _context.Notifications
+            //    .FirstOrDefaultAsync(m => m.notificationId == id);
             if (notification == null)
             {
                 return NotFound();
@@ -139,19 +150,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var notification = await _context.Notifications.FindAsync(id);
+            var notification = _notificationRepo.GetById(id);
+            //var notification = await _context.Notifications.FindAsync(id);
             if (notification != null)
             {
-                _context.Notifications.Remove(notification);
+                _notificationRepo.Delete(id);
+                //_context.Notifications.Remove(notification);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool NotificationExists(int id)
         {
-            return _context.Notifications.Any(e => e.notificationId == id);
+            return _notificationRepo.GetAll().Any(e => e.notificationId == id);
+            //return _context.Notifications.Any(e => e.notificationId == id);
         }
     }
 }

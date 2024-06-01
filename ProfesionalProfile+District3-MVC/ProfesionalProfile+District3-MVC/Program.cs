@@ -23,6 +23,7 @@ builder.Services.AddScoped<IBusinessCardRepo, BusinessCardRepo>();
 builder.Services.AddScoped<ICertificateRepo, CertificateRepo>();
 builder.Services.AddScoped<IEducationRepo, EducationRepo>();
 builder.Services.AddScoped<IEndorsementRepo, EndorsementRepo>();
+builder.Services.AddScoped<INotificationRepo, NotificationRepo>();
 
 var app = builder.Build();
 
