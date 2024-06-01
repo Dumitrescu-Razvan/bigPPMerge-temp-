@@ -10,7 +10,7 @@ namespace ProfesionalProfile_District3_MVC.Models
     {
         public int assessmentTestId { get; set;}
         public string testName { get; set; }
-        public int userId { get; set; }
+        public string userId { get; set; }
         public string description { get; set; }
         public int skillid { get; set; }
         

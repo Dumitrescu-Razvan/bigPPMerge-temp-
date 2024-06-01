@@ -12,7 +12,7 @@ namespace ProfesionalProfile_District3_MVC.Models
         public string projectName { get; set; }
         public string description { get; set; }
         public string technologies { get; set; }
-        public int userId { get; set; }
+        public string userId { get; set; }
 
         //Navigation properties
         public User User { get; set; }
