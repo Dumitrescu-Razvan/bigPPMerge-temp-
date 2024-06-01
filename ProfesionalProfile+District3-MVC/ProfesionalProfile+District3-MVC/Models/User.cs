@@ -5,14 +5,15 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProfesionalProfile_District3_MVC.Models
 {
-    public class User
+    public class User : IdentityUser
     {
         // <------------------------------------ District3 ------------------------------------>
-        public int Id { get; set; }
-        public string? Username { get; set; }
+        public string Id { get; set; }
+        //public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string? ConfirmationPassword { get; set; }

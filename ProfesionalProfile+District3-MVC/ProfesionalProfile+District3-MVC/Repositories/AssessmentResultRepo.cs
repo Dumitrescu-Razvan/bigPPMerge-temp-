@@ -99,7 +99,7 @@ namespace ProfesionalProfile_District3_MVC.Repositories
             {
                 using (var context = _contextFactory.CreateDbContext())
                 {
-                    return context.AssessmentResults.Where(x => x.userId == userId).ToList();
+                    return context.AssessmentResults.Where(x => x.userId == userId.ToString()).ToList();
                 }
             }
             catch (Exception ex)

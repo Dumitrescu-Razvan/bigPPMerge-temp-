@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using ProfesionalProfile_District3_MVC.Models;
 
@@ -6,7 +8,7 @@ using ProfesionalProfile_District3_MVC.Models;
 namespace ProfesionalProfile_District3_MVC.Data
 
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -51,7 +53,8 @@ namespace ProfesionalProfile_District3_MVC.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // <------------------------------------ ProfesionalProfile_District3_MVC ------------------------------------>
-
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(x => x.UserId);
             modelBuilder.Entity<Endorsement>(Endorsement =>
             {
                 Endorsement.HasKey(a => a.endorsementId);

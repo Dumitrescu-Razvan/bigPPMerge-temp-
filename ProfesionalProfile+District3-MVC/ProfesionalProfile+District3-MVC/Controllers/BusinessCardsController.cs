@@ -169,7 +169,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             //var bussinesCard = await _context.BusinessCards.FindAsync(id);
             if (bussinesCard != null)
             {
-                _businessCardRepo.Delete(bussinesCard.userId);
+                _businessCardRepo.Delete(int.Parse(bussinesCard.userId));
                 //_context.BusinessCards.Remove(bussinesCard);
             }
 

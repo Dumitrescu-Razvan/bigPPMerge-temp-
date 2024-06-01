@@ -9,6 +9,7 @@ using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
@@ -16,10 +17,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
     {
         private readonly IUserRepo _userRepo;
         //private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public UsersController(IUserRepo userRepo)
+        public UsersController(IUserRepo userRepo, UserManager<User> userManager)
         {
             _userRepo = userRepo;
+            _userManager = userManager;
         }
 
         // GET: Users
@@ -63,51 +66,25 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
+        public async Task<IActionResult> Create([Bind("Id,UserName,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
         {
-            if (user.Password != user.ConfirmationPassword)
+            user.Id = Guid.NewGuid().ToString();
+            var result =  await _userManager.CreateAsync(user, user.Password);
+            
+            if (result.Succeeded)
             {
-                ModelState.AddModelError("ConfirmationPassword", "Password and Confirmation Password do not match");
-            }
-            if (user.Username != null && _userRepo.GetAll().Any(u => u.Username == user.Username))
-            {
-                ModelState.AddModelError("Username", "Username already exists");
-            }
-            if (user.Email != null && _userRepo.GetAll().Any(u => u.Email == user.Email))
-            {
-                ModelState.AddModelError("Email", "Email already exists");
-            }
-            if (user.Email != null && user.Email != null && !user.Email.Contains("@") && !user.Email.Contains("."))
-            {
-                ModelState.AddModelError("Email", "Email is not valid");
-            }
-            /*if (user.Email != null && !user.Email.Contains("@") && !user.Email.Contains("."))
-            {
-                ModelState.AddModelError("Email", "Email is not valid");
-            }*/
-            user.RegistrationDate = DateTime.Now;
-            user.FollowersCount = 0;
-            user.FollowingCount = 0;
-            user.UserSession = TimeSpan.FromHours(1);
-            if (user.Phone.Length != 10 || user.Phone.Count(c => char.IsDigit(c)) != 10)
-            {
-                ModelState.AddModelError("Phone", "Phone number must be 10 digits and start with 07");
-            }
-            if (user.WebsiteURL != null && !user.WebsiteURL.Contains("http://") && !user.WebsiteURL.Contains("."))
-            {
-                ModelState.AddModelError("WebsiteURL", "Website URL must start with http://");
-            }
-            if (ModelState.IsValid)
-            {
-                _userRepo.Add(user);
-                /*_context.Add(user);
-                await _context.SaveChangesAsync();
- */
                 return RedirectToAction("Index", "Home");
             }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
             ViewData["GroupId"] = new SelectList(_userRepo.GetAll(), "Id", "Id", user.GroupId);
-            //ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
             return View(user);
+
         }
 
         // GET: Users/Edit/5
@@ -136,7 +113,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
         {
-            if (id != user.Id)
+            if (id.ToString() != user.Id)
             {
                 return NotFound();
             }
@@ -151,7 +128,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
+                    if (!UserExists(int.Parse(user.Id)))
                     {
                         return NotFound();
                     }
@@ -206,24 +183,29 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 
         private bool UserExists(int id)
         {
-            return _userRepo.GetAll().Any(e => e.Id == id);
+            return _userRepo.GetAll().Any(e => e.Id == id.ToString());
             //return _context.Users.Any(e => e.Id == id);
         }
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            var user = _userRepo.GetAll().FirstOrDefault(u => u.Email == email && u.Password == password);
+            List<User> users = _userRepo.GetAll().ToList();
+            for (int i = 0; i < users.Count; i++)
+            {
+                if (users[i].Email == email && users[i].Password == password)
+                {
+                    return RedirectToAction("ProfilePage", "Home");
+                }
+            }
+            //print all the users
             /*var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
             */
-            if (user != null)
-                // Login successful
-                // Here you can add code to log the user in, like setting a cookie or a session variable
-                return RedirectToAction("ProfilePage", "Home");
 
             // Login failed
             ModelState.AddModelError("", "Invalid login attempt.");
-            return View();
+            //return an error message
+            return RedirectToAction("Index", "Home");
         }
     }
 }
