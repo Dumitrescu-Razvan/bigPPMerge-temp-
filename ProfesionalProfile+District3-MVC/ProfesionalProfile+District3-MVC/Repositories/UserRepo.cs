@@ -1,47 +1,102 @@
-﻿using ProfesionalProfile_District3_MVC.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class UserRepository : IRepoInterface<User>
+    public class UserRepo : IUserRepo
     {
-        private readonly ApplicationDbContext _context;
-        public UserRepository(ApplicationDbContext context)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;    
+        
+        public UserRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
-
         public void Add(User item)
         {
-            _context.User.Add(item);
-            _context.SaveChanges();
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.User.Add(item);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void Delete(int id)
         {
-            var user = _context.User.Find(id);
-            if (user != null)
+            try 
+            {        
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    var user = context.User.Find(id);
+                    context.User.Remove(user);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
             {
-                _context.User.Remove(user);
-                _context.SaveChanges();
+                throw ex;
             }
         }
 
         public ICollection<User> GetAll()
         {
-            return _context.User.ToList();
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.User.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public User GetById(int id)
         {
-            return _context.User.Find(id);
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    return context.User.Find(id);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public void Update(User item)
+        public void Update(User user)
         {
-            _context.User.Update(item);
-            _context.SaveChanges();
+            try
+            {
+                using (var context = _contextFactory.CreateDbContext())
+                {
+                    context.User.Update(user);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class FollowingFeedsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFollowingFeedRepository repository;
 
-        public FollowingFeedsController(ApplicationDbContext context)
+        public FollowingFeedsController(IFollowingFeedRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: FollowingFeeds
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FollowingFeeds.ToListAsync());
+            var followingFeeds = await repository.GetFollowingFeedsAsync();
+            return View(followingFeeds);
         }
 
         // GET: FollowingFeeds/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followingFeed = await _context.FollowingFeeds
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var followingFeed = await repository.GetFollowingFeedByIdAsync(id.Value);
             if (followingFeed == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,ReactionThreshold")] FollowingFeed followingFeed)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(followingFeed);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddFollowingFeedAsync(followingFeed);
             return View(followingFeed);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followingFeed = await _context.FollowingFeeds.FindAsync(id);
+            var followingFeed = await repository.GetFollowingFeedByIdAsync(id.Value);
             if (followingFeed == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(followingFeed);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateFollowingFeedAsync(followingFeed);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FollowingFeedExists(followingFeed.ID))
+                    var exists = await repository.FollowingFeedExistsAsync(followingFeed.ID);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followingFeed = await _context.FollowingFeeds
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var followingFeed = await repository.GetFollowingFeedByIdAsync(id.Value);
             if (followingFeed == null)
             {
                 return NotFound();
@@ -139,19 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var followingFeed = await _context.FollowingFeeds.FindAsync(id);
-            if (followingFeed != null)
-            {
-                _context.FollowingFeeds.Remove(followingFeed);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteFollowingFeedAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FollowingFeedExists(int id)
-        {
-            return _context.FollowingFeeds.Any(e => e.ID == id);
         }
     }
 }

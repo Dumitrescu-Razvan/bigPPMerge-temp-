@@ -6,23 +6,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class CommentsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICommentRepository repository;
 
-        public CommentsController(ApplicationDbContext context)
+
+        public CommentsController(ICommentRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Comments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Comments.ToListAsync());
+            var comments = await repository.GetComments();
+
+            return View(comments);
         }
 
         // GET: Comments/Details/5
@@ -32,9 +36,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
+            var comment = await repository.GetComment(id.Value);
 
-            var comment = await _context.Comments
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (comment == null)
             {
                 return NotFound();
@@ -56,12 +59,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Post_Id,Owner_User_Id,Description")] Comment comment)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(comment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            
+            await repository.AddComment(comment);
             return View(comment);
         }
 
@@ -73,7 +72,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await repository.GetComment(id.Value);
+
             if (comment == null)
             {
                 return NotFound();
@@ -97,8 +97,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(comment);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateComment(comment);
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +124,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var comment = await repository.GetComment(id.Value);
             if (comment == null)
             {
                 return NotFound();
@@ -139,19 +138,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment != null)
-            {
-                _context.Comments.Remove(comment);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteComment(id);
             return RedirectToAction(nameof(Index));
         }
 
         private bool CommentExists(int id)
         {
-            return _context.Comments.Any(e => e.Id == id);
+            return repository.CommentExists(id);
         }
     }
 }

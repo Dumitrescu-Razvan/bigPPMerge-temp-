@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class MediaController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IMediasRepository repository;
 
-        public MediaController(ApplicationDbContext context)
+        public MediaController(IMediasRepository mediaRepository)
         {
-            _context = context;
+            repository = mediaRepository;
         }
 
         // GET: Media
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Media.ToListAsync());
+            var medias = await repository.GetMediasAsync();
+            return View(medias);
         }
 
         // GET: Media/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var media = await _context.Media
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var media = await repository.GetMediaByIdAsync(id.Value);
             if (media == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FilePath")] Media media)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(media);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddMediaAsync(media);
             return View(media);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var media = await _context.Media.FindAsync(id);
+            var media = await repository.GetMediaByIdAsync(id.Value);
             if (media == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(media);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateMediaAsync(media);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MediaExists(media.Id))
+                    var exists = await repository.MediaExistsAsync(id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var media = await _context.Media
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var media = await repository.GetMediaByIdAsync(id.Value);
             if (media == null)
             {
                 return NotFound();
@@ -139,19 +134,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var media = await _context.Media.FindAsync(id);
-            if (media != null)
-            {
-                _context.Media.Remove(media);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteMediaAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MediaExists(int id)
-        {
-            return _context.Media.Any(e => e.Id == id);
-        }
+        
     }
 }

@@ -7,26 +7,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using ProfesionalProfile_District3_MVC.Repositories;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly UserRepository userRepository;
+        private readonly IUserRepo _userRepo;
+        //private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public UsersController(ApplicationDbContext context)
+        public UsersController(IUserRepo userRepo, UserManager<User> userManager)
         {
-            userRepository = new UserRepository(context);
+            _userRepo = userRepo;
+            _userManager = userManager;
         }
 
         // GET: Users
         public async Task<IActionResult> Index()
         {
+            return View(_userRepo.GetAll());
             //var applicationDbContext = _context.Users.Include(u => u.Group);
-            var applicationDbContext = userRepository.GetAll();
-            return View(applicationDbContext);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Users/Details/5
@@ -37,10 +42,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
+            var user = _userRepo.GetById(id.Value);
             /*var user = await _context.Users
                 .Include(u => u.Group)
                 .FirstOrDefaultAsync(m => m.Id == id);*/
-            var user = userRepository.GetById(id.Value);
             if (user == null)
             {
                 return NotFound();
@@ -52,8 +57,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Users/Create
         public IActionResult Create()
         {
+            ViewData["GroupId"] = new SelectList(_userRepo.GetAll(), "Id", "Id");
             //ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id");
-            ViewData["GroupId"] = new SelectList(userRepository.GetAll(), "Id", "Id");
             return View();
         }
 
@@ -62,44 +67,25 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
+        public async Task<IActionResult> Create([Bind("Id,UserName,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
         {
-            if (user.Password != user.ConfirmationPassword)
+            user.Id = Guid.NewGuid().ToString();
+            var result =  await _userManager.CreateAsync(user, user.Password);
+            
+            if (result.Succeeded)
             {
-                ModelState.AddModelError("ConfirmationPassword", "Password and Confirmation Password do not match");
-            }
-            //if (user.Email != null && _context.Users.Any(u => u.Email == user.Email))
-            if(user.Email != null && userRepository.GetAll().Any(u => u.Email == user.Email))
-            {
-                ModelState.AddModelError("Email", "Email already exists");
-            }
-            if (user.Email != null && !user.Email.Contains("@") && !user.Email.Contains("."))
-            {
-                ModelState.AddModelError("Email", "Email is not valid");
-            }
-            user.RegistrationDate = DateTime.Now;
-            user.FollowersCount = 0;
-            user.FollowingCount = 0;
-            user.UserSession = TimeSpan.FromHours(1);
-            if (user.Phone.Length != 10 || user.Phone.Count(c => char.IsDigit(c)) != 10)
-            {
-                ModelState.AddModelError("Phone", "Phone number must be 10 digits and start with 07");
-            }
-            if (user.WebsiteURL != null && !user.WebsiteURL.Contains("http://") && !user.WebsiteURL.Contains("."))
-            {
-                ModelState.AddModelError("WebsiteURL", "Website URL must start with http://");
-            }
-            if (ModelState.IsValid)
-            {
-                ///_context.Add(user);
-                //await _context.SaveChangesAsync();
-                userRepository.Add(user);
- 
                 return RedirectToAction("Index", "Home");
             }
-            // ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
-            ViewData["GroupId"] = new SelectList(userRepository.GetAll(), "Id", "Id", user.GroupId);
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+            ViewData["GroupId"] = new SelectList(_userRepo.GetAll(), "Id", "Id", user.GroupId);
             return View(user);
+
         }
 
         // GET: Users/Edit/5
@@ -110,14 +96,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            //var user = await _context.Users.FindAsync(id);
-            var user = userRepository.GetById(id.Value);
+            var user = _userRepo.GetById(id.Value);
+            /*var user = await _context.Users.FindAsync(id);*/
             if (user == null)
             {
                 return NotFound();
             }
-            // ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
-            ViewData["GroupId"] = new SelectList(userRepository.GetAll(), "Id", "Id", user.GroupId);
+            ViewData["GroupId"] = new SelectList(_userRepo.GetAll(), "Id", "Id", user.GroupId);
+            //ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
             return View(user);
         }
 
@@ -128,7 +114,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,Email,ConfirmationPassword,RegistrationDate,FollowingCount,FollowersCount,UserSession,GroupId,Summary,DarkTheme,Phone,WebsiteURL")] User user)
         {
-            if (id != user.Id)
+            if (id.ToString() != user.Id)
             {
                 return NotFound();
             }
@@ -137,13 +123,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    /*_context.Update(user);
-                    await _context.SaveChangesAsync();*/
-                    userRepository.Update(user);
+                    _userRepo.Update(user);
+                    //_context.Update(user);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
+                    if (!UserExists(int.Parse(user.Id)))
                     {
                         return NotFound();
                     }
@@ -154,8 +140,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            // ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
-            ViewData["GroupId"] = new SelectList(userRepository.GetAll(), "Id", "Id", user.GroupId);
+            ViewData["GroupId"] = new SelectList(_userRepo.GetAll(), "Id", "Id", user.GroupId);
+            //ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Id", user.GroupId);
             return View(user);
         }
 
@@ -167,10 +153,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
+            var user = _userRepo.GetById(id.Value);
             /*var user = await _context.Users
                 .Include(u => u.Group)
                 .FirstOrDefaultAsync(m => m.Id == id);*/
-            var user = userRepository.GetById(id.Value);
             if (user == null)
             {
                 return NotFound();
@@ -184,12 +170,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //var user = await _context.Users.FindAsync(id);
-            var user = userRepository.GetById(id);
+            var user = _userRepo.GetById(id);
+            /*var user = await _context.Users.FindAsync(id);*/
             if (user != null)
             {
-               // _context.Users.Remove(user);
-               userRepository.Delete(id);
+                _userRepo.Delete(id);
+                /*_context.Users.Remove(user);*/
             }
 
             //await _context.SaveChangesAsync();
@@ -198,25 +184,29 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 
         private bool UserExists(int id)
         {
+            return _userRepo.GetAll().Any(e => e.Id == id.ToString());
             //return _context.Users.Any(e => e.Id == id);
-            return userRepository.GetAll().Any(e => e.Id == id);
         }
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            /*
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);*/
-            var user = userRepository.GetAll().FirstOrDefault(u => u.Email == email && u.Password == password);
-
-            if (user != null)
-                // Login successful
-                // Here you can add code to log the user in, like setting a cookie or a session variable
-                return RedirectToAction("ProfilePage", "Home");
+            List<User> users = _userRepo.GetAll().ToList();
+            for (int i = 0; i < users.Count; i++)
+            {
+                if (users[i].Email == email && users[i].Password == password)
+                {
+                    return RedirectToAction("ProfilePage", "Home");
+                }
+            }
+            //print all the users
+            /*var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            */
 
             // Login failed
             ModelState.AddModelError("", "Invalid login attempt.");
-            return View();
+            //return an error message
+            return RedirectToAction("Index", "Home");
         }
     }
 }

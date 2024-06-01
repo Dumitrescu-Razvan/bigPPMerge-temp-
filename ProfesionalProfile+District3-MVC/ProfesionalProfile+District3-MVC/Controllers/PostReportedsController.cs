@@ -6,23 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class PostReportedsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPostReportedRepository repository;
 
-        public PostReportedsController(ApplicationDbContext context)
+        public PostReportedsController(IPostReportedRepository postReportedRepository)
         {
-            _context = context;
+            repository = postReportedRepository;
         }
+
 
         // GET: PostReporteds
         public async Task<IActionResult> Index()
         {
-            return View(await _context.PostReported.ToListAsync());
+            var postReported = await repository.GetPostReportedAsync();
+            return View(postReported);
         }
 
         // GET: PostReporteds/Details/5
@@ -33,8 +36,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postReported = await _context.PostReported
-                .FirstOrDefaultAsync(m => m.Report_Id == id);
+            var postReported = await repository.GetPostReportedByIdAsync(id.Value);
             if (postReported == null)
             {
                 return NotFound();
@@ -56,12 +58,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Report_Id,Reason,Description,Post_Id,Reporter_Id")] PostReported postReported)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(postReported);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddPostReportedAsync(postReported);
             return View(postReported);
         }
 
@@ -73,7 +70,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postReported = await _context.PostReported.FindAsync(id);
+            var postReported = await repository.GetPostReportedByIdAsync(id.Value);
             if (postReported == null)
             {
                 return NotFound();
@@ -97,12 +94,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(postReported);
-                    await _context.SaveChangesAsync();
+                  await repository.UpdatePostReportedAsync(postReported);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PostReportedExists(postReported.Report_Id))
+                    var exists = await repository.PostReportedExistsAsync(postReported.Report_Id);
+                    if (exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +121,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postReported = await _context.PostReported
-                .FirstOrDefaultAsync(m => m.Report_Id == id);
+            var postReported = await repository.GetPostReportedByIdAsync(id.Value);
             if (postReported == null)
             {
                 return NotFound();
@@ -139,19 +135,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var postReported = await _context.PostReported.FindAsync(id);
-            if (postReported != null)
-            {
-                _context.PostReported.Remove(postReported);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeletePostReportedAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool PostReportedExists(int id)
-        {
-            return _context.PostReported.Any(e => e.Report_Id == id);
         }
     }
 }

@@ -7,23 +7,28 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class ProjectsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IProjectRepo _projectRepo;
+        private readonly IUserRepo _userRepo;
 
-        public ProjectsController(ApplicationDbContext context)
+        public ProjectsController(IProjectRepo projectRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _projectRepo = projectRepo;
+            _userRepo = userRepo;
         }
 
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Projects.Include(p => p.User);
-            return View(await applicationDbContext.ToListAsync());
+            return View(_projectRepo.GetAll());
+            //var applicationDbContext = _context.Projects.Include(p => p.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Projects/Details/5
@@ -34,9 +39,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects
+            var project = _projectRepo.GetById(id.Value);
+            /*var project = await _context.Projects
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.projectId == id);
+                .FirstOrDefaultAsync(m => m.projectId == id);*/
             if (project == null)
             {
                 return NotFound();
@@ -48,7 +54,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Projects/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -62,11 +69,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("User");
             if (ModelState.IsValid)
             {
-                _context.Add(project);
-                await _context.SaveChangesAsync();
+                _projectRepo.Add(project);
+                /*_context.Add(project);
+                await _context.SaveChangesAsync();*/
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", project.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", project.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", project.userId);
             return View(project);
         }
 
@@ -78,12 +87,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects.FindAsync(id);
+            var project = _projectRepo.GetById(id.Value);
+            //var project = await _context.Projects.FindAsync(id);
             if (project == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", project.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", project.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", project.userId);
             return View(project);
         }
 
@@ -103,8 +114,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
+                    _projectRepo.Update(project);
+                    /*_context.Update(project);
+                    await _context.SaveChangesAsync();*/
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +131,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", project.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", project.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", project.userId);
             return View(project);
         }
 
@@ -131,9 +144,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects
+            var project = _projectRepo.GetById(id.Value);
+            /*var project = await _context.Projects
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.projectId == id);
+                .FirstOrDefaultAsync(m => m.projectId == id);*/
             if (project == null)
             {
                 return NotFound();
@@ -147,19 +161,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = _projectRepo.GetById(id);
+            //var project = await _context.Projects.FindAsync(id);
             if (project != null)
             {
-                _context.Projects.Remove(project);
+                _projectRepo.Delete(id);
+                //_context.Projects.Remove(project);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProjectExists(int id)
         {
-            return _context.Projects.Any(e => e.projectId == id);
+            return _projectRepo.GetAll().Any(e => e.projectId == id);
+            //return _context.Projects.Any(e => e.projectId == id);
         }
     }
 }

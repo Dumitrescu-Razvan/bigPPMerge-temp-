@@ -9,7 +9,7 @@ namespace ProfesionalProfile_District3_MVC.Models
             public string? HolderName { get; set; }
             public string? ExpirationDate { get; set; }
             public string? Cvv { get; set; }
-            public int UserId { get; set; }
+            public string UserId { get; set; }
             [JsonIgnore]
             public User? User { get; set; }
         

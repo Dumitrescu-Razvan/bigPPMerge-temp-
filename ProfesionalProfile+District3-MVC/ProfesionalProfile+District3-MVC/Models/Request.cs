@@ -8,9 +8,9 @@ namespace ProfesionalProfile_District3_MVC.Models
     {
         [Key][DatabaseGenerated(DatabaseGeneratedOption.Identity)] public int Id { get; set; }
 
-        [ForeignKey("User")][Required] public int SenderId { get; set; }
+        [ForeignKey("User")][Required] public string SenderId { get; set; }
         [NotMapped] public User? SenderUser { get; set; } = null!;
-        [ForeignKey("User")][Required] public int ReceiverId { get; set; }
+        [ForeignKey("User")][Required] public string ReceiverId { get; set; }
         [NotMapped] public User? ReceiverUser { get; set; } = null!;
     }
 }

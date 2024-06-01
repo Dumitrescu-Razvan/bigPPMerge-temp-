@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ProfesionalProfile_District3_MVC.Models
 {
-    public class BussinesCard
+    public class BusinessCard
     {
         public int bcId { get; set;}
-        public int userId { get; set; }
+        public string userId { get; set; }
         public string summary { get; set; }
         public string uniqueUrl { get; set; }
         

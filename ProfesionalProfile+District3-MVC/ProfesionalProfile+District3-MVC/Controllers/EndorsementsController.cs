@@ -7,23 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class EndorsementsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUserRepo _userRepo;
+        private readonly IEndorsementRepo _endorsementRepo;
 
-        public EndorsementsController(ApplicationDbContext context)
+        public EndorsementsController(IUserRepo userRepo, IEndorsementRepo endorsementRepo)
         {
-            _context = context;
+            _userRepo = userRepo;
+            _endorsementRepo = endorsementRepo;
         }
 
         // GET: Endorsements
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Endorsements.Include(e => e.Endorser).Include(e => e.Recipient);
-            return View(await applicationDbContext.ToListAsync());
+            var endorsements = _endorsementRepo.GetAll();
+            return View(endorsements);
+            //var applicationDbContext = _context.Endorsements.Include(e => e.Endorser).Include(e => e.Recipient);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Endorsements/Details/5
@@ -34,10 +40,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var endorsement = await _context.Endorsements
+            var endorsement = _endorsementRepo.GetById(id.Value);
+            /*var endorsement = await _context.Endorsements
                 .Include(e => e.Endorser)
                 .Include(e => e.Recipient)
-                .FirstOrDefaultAsync(m => m.endorsementId == id);
+                .FirstOrDefaultAsync(m => m.endorsementId == id);*/
             if (endorsement == null)
             {
                 return NotFound();
@@ -49,8 +56,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Endorsements/Create
         public IActionResult Create()
         {
-            ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId");
-            ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["endorserId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            ViewData["recipientid"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId");
+            //ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -65,12 +74,15 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("Recipient");
             if (ModelState.IsValid)
             {
-                _context.Add(endorsement);
-                await _context.SaveChangesAsync();
+                _endorsementRepo.Add(endorsement);
+                //_context.Add(endorsement);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId", endorsement.endorserId);
-            ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId", endorsement.recipientid);
+            ViewData["endorserId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", endorsement.endorserId);
+            ViewData["recipientid"] = new SelectList(_userRepo.GetAll(), "userId", "userId", endorsement.recipientid);
+            //ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId", endorsement.endorserId);
+            //ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId", endorsement.recipientid);
             return View(endorsement);
         }
 
@@ -82,13 +94,16 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var endorsement = await _context.Endorsements.FindAsync(id);
+            var endorsement = _endorsementRepo.GetById(id.Value);
+            //var endorsement = await _context.Endorsements.FindAsync(id);
             if (endorsement == null)
             {
                 return NotFound();
             }
-            ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId", endorsement.endorserId);
-            ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId", endorsement.recipientid);
+            ViewData["endorserId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", endorsement.endorserId);
+            ViewData["recipientid"] = new SelectList(_userRepo.GetAll(), "userId", "userId", endorsement.recipientid);
+            //ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId", endorsement.endorserId);
+            //ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId", endorsement.recipientid);
             return View(endorsement);
         }
 
@@ -108,8 +123,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(endorsement);
-                    await _context.SaveChangesAsync();
+                    _endorsementRepo.Update(endorsement);
+                    //_context.Update(endorsement);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +140,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId", endorsement.endorserId);
-            ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId", endorsement.recipientid);
+            ViewData["endorserId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", endorsement.endorserId);
+            ViewData["recipientid"] = new SelectList(_userRepo.GetAll(), "userId", "userId", endorsement.recipientid);
+            //ViewData["endorserId"] = new SelectList(_context.Users, "userId", "userId", endorsement.endorserId);
+            //ViewData["recipientid"] = new SelectList(_context.Users, "userId", "userId", endorsement.recipientid);
             return View(endorsement);
         }
 
@@ -137,10 +155,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var endorsement = await _context.Endorsements
-                .Include(e => e.Endorser)
-                .Include(e => e.Recipient)
-                .FirstOrDefaultAsync(m => m.endorsementId == id);
+            var endorsement = _endorsementRepo.GetById(id.Value);
+            //var endorsement = await _context.Endorsements
+            //    .Include(e => e.Endorser)
+            //    .Include(e => e.Recipient)
+            //    .FirstOrDefaultAsync(m => m.endorsementId == id);
             if (endorsement == null)
             {
                 return NotFound();
@@ -154,19 +173,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var endorsement = await _context.Endorsements.FindAsync(id);
+            var endorsement = _endorsementRepo.GetById(id);
+            //var endorsement = await _context.Endorsements.FindAsync(id);
             if (endorsement != null)
             {
-                _context.Endorsements.Remove(endorsement);
+                _endorsementRepo.Delete(id);
+                //_context.Endorsements.Remove(endorsement);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool EndorsementExists(int id)
         {
-            return _context.Endorsements.Any(e => e.endorsementId == id);
+            return _endorsementRepo.GetById(id) != null;
+            //return _context.Endorsements.Any(e => e.endorsementId == id);
         }
     }
 }

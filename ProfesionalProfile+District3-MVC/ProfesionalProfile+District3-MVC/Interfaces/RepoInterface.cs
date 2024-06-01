@@ -1,4 +1,10 @@
-﻿namespace ProfesionalProfile_District3_MVC.Interfaces
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ProfesionalProfile_District3_MVC.Interfaces
 {
     public interface IRepoInterface<T>
     {

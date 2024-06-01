@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class RequestsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRequestRepository repository;
 
-        public RequestsController(ApplicationDbContext context)
+        public RequestsController(IRequestRepository requestRepository)
         {
-            _context = context;
+            repository = requestRepository;
         }
 
         // GET: Requests
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Requests.ToListAsync());
+            var requests = await repository.GetRequestsAsync();
+            return View(requests);
         }
 
         // GET: Requests/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var request = await _context.Requests
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var request = await repository.GetRequestByIdAsync(id.Value);
             if (request == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,SenderId,ReceiverId")] Request request)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(request);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddRequestAsync(request);
             return View(request);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var request = await _context.Requests.FindAsync(id);
+            var request = await repository.GetRequestByIdAsync(id.Value);
             if (request == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(request);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateRequestAsync(request);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RequestExists(request.Id))
+                    var exists = await repository.RequestExistsAsync(request.Id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var request = await _context.Requests
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var request = await repository.GetRequestByIdAsync(id.Value);
             if (request == null)
             {
                 return NotFound();
@@ -139,19 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var request = await _context.Requests.FindAsync(id);
-            if (request != null)
-            {
-                _context.Requests.Remove(request);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteRequestAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool RequestExists(int id)
-        {
-            return _context.Requests.Any(e => e.Id == id);
         }
     }
 }
