@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,13 +14,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class HighlightsController : Controller
     {
-        private HighlightRepository highlightRepository;
-        private UserRepository userRepository;
+        private readonly IRepoInterface<Highlight> highlightRepository;
+        private readonly IUserRepo userRepository;
 
-        public HighlightsController(ApplicationDbContext context)
+        public HighlightsController(IRepoInterface<Highlight> hlRepo, IUserRepo usRepo)
         {
-            highlightRepository = new HighlightRepository(context);
-            userRepository = new UserRepository(context);
+            highlightRepository = hlRepo;
+            userRepository = usRepo;
         }
 
         // GET: Highlights

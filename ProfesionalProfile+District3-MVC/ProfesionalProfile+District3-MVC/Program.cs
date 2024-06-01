@@ -53,6 +53,13 @@ builder.Services.AddScoped<ITrendingFeedRepository, TrendingFeedRepository>();
 builder.Services.AddScoped<IUsersRepositoryGAMBA, UsersRepositoryGAMBA>();
 builder.Services.AddScoped<IFollowingFeedRepository, FollowingFeedRepository>();
 builder.Services.AddScoped<IPostGAMBARepository, PostsGAMBARepository>();
+builder.Services.AddScoped<IRepoInterface<Account>, AccountRepository>();
+builder.Services.AddScoped<IRepoInterface<BlockedProfile>, BlockedProfileRepository>();
+builder.Services.AddScoped<IRepoInterface<CloseFriendProfile>, CloseFriendsProfileRepository>();
+builder.Services.AddScoped<IRepoInterface<Group>, GroupRepository>();
+builder.Services.AddScoped<IRepoInterface<Highlight>, HighlightRepository>();
+builder.Services.AddScoped<IRepoInterface<Post>, PostRepository>();
+builder.Services.AddScoped<IRepoInterface<FancierProfile>, FancierProfileRepository>();
 
 var app = builder.Build();
 

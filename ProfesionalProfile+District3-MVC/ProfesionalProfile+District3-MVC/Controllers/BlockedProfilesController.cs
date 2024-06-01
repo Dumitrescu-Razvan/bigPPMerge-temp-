@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Repositories;
 
@@ -13,13 +14,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class BlockedProfilesController : Controller
     {
-        private BlockedProfileRepository blockedProfileRepository;
-        private UserRepository userRepository;
+        private readonly IRepoInterface<BlockedProfile> blockedProfileRepository;
+        private readonly IUserRepo userRepository;
 
-        public BlockedProfilesController(ApplicationDbContext context)
+        public BlockedProfilesController(IRepoInterface<BlockedProfile> blRepo, IUserRepo usRepo)
         {
-            blockedProfileRepository = new BlockedProfileRepository(context);
-            userRepository = new UserRepository(context);
+            blockedProfileRepository = blRepo;
+            userRepository = usRepo;
         }
 
         // GET: BlockedProfiles
