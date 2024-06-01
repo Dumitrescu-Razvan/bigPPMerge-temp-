@@ -7,23 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class PrivaciesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IUserRepo _userRepo;
+        private readonly IPrivacyRepo _privacyRepo;
 
-        public PrivaciesController(ApplicationDbContext context)
+        public PrivaciesController(IUserRepo userRepo, IPrivacyRepo privacyRepo)
         {
-            _context = context;
+            _userRepo = userRepo;
+            _privacyRepo = privacyRepo;
         }
 
         // GET: Privacies
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Privacies.Include(p => p.User);
-            return View(await applicationDbContext.ToListAsync());
+            var privacies = _privacyRepo.GetAll();
+            return View(privacies);
+            //var applicationDbContext = _context.Privacies.Include(p => p.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Privacies/Details/5
@@ -33,10 +39,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
-            var privacy = await _context.Privacies
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var privacy = _privacyRepo.GetById(id.Value);
+            //var privacy = await _context.Privacies
+            //    .Include(p => p.User)
+            //    .FirstOrDefaultAsync(m => m.Id == id);
             if (privacy == null)
             {
                 return NotFound();
@@ -48,7 +54,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Privacies/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -62,11 +69,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("User");
             if (ModelState.IsValid)
             {
-                _context.Add(privacy);
-                await _context.SaveChangesAsync();
+                _privacyRepo.Add(privacy);
+                //_context.Add(privacy);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", privacy.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", privacy.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", privacy.userId);
             return View(privacy);
         }
 
@@ -78,12 +87,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var privacy = await _context.Privacies.FindAsync(id);
+            var privacy = _privacyRepo.GetById(id.Value);
+            //var privacy = await _context.Privacies.FindAsync(id);
             if (privacy == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", privacy.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", privacy.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", privacy.userId);
             return View(privacy);
         }
 
@@ -103,8 +114,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(privacy);
-                    await _context.SaveChangesAsync();
+                    _privacyRepo.Update(privacy);
+                    //_context.Update(privacy);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +131,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", privacy.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", privacy.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", privacy.userId);
             return View(privacy);
         }
 
@@ -131,9 +144,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var privacy = await _context.Privacies
+            var privacy = _privacyRepo.GetById(id.Value);
+            /*var privacy = await _context.Privacies
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);*/
             if (privacy == null)
             {
                 return NotFound();
@@ -147,19 +161,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var privacy = await _context.Privacies.FindAsync(id);
+            var privacy = _privacyRepo.GetById(id);
+            //var privacy = await _context.Privacies.FindAsync(id);
             if (privacy != null)
             {
-                _context.Privacies.Remove(privacy);
+                _privacyRepo.Delete(id);
+                //_context.Privacies.Remove(privacy);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PrivacyExists(int id)
         {
-            return _context.Privacies.Any(e => e.Id == id);
+            return _privacyRepo.GetById(id) != null;
+            //return _context.Privacies.Any(e => e.Id == id);
         }
     }
 }
