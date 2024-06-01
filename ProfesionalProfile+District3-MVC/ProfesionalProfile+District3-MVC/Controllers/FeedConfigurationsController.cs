@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class FeedConfigurationsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFeedConfigurationRepository repository;
 
-        public FeedConfigurationsController(ApplicationDbContext context)
+        public FeedConfigurationsController(IFeedConfigurationRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: FeedConfigurations
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FeedConfigurations.ToListAsync());
+            var feedConfigurations = await repository.GetFeedConfigurationsAsync();
+            return View(feedConfigurations);
         }
 
         // GET: FeedConfigurations/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var feedConfiguration = await _context.FeedConfigurations
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var feedConfiguration = await repository.GetFeedConfigurationByIdAsync(id.Value);
             if (feedConfiguration == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,ReactionThreshold")] FeedConfiguration feedConfiguration)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(feedConfiguration);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddFeedConfigurationAsync(feedConfiguration);
             return View(feedConfiguration);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var feedConfiguration = await _context.FeedConfigurations.FindAsync(id);
+            var feedConfiguration = await repository.GetFeedConfigurationByIdAsync(id.Value);
             if (feedConfiguration == null)
             {
                 return NotFound();
@@ -97,8 +93,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(feedConfiguration);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateFeedConfigurationAsync(feedConfiguration);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +119,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var feedConfiguration = await _context.FeedConfigurations
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var feedConfiguration = await repository.GetFeedConfigurationByIdAsync(id.Value);
             if (feedConfiguration == null)
             {
                 return NotFound();
@@ -139,19 +133,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var feedConfiguration = await _context.FeedConfigurations.FindAsync(id);
-            if (feedConfiguration != null)
-            {
-                _context.FeedConfigurations.Remove(feedConfiguration);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteFeedConfigurationAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
         private bool FeedConfigurationExists(int id)
         {
-            return _context.FeedConfigurations.Any(e => e.ID == id);
+            return repository.FeedConfigurationExists(id);
         }
     }
 }

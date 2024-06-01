@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class LocationsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ILocationsRepository repository;
 
-        public LocationsController(ApplicationDbContext context)
+        public LocationsController(ILocationsRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Locations
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Location.ToListAsync());
+            var locations = await repository.GetLocationsAsync();
+            return View(locations);
         }
 
         // GET: Locations/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var location = await _context.Location
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var location = await repository.GetLocationByIdAsync(id.Value);
             if (location == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Latitude,Longitude")] Location location)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(location);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddLocationAsync(location);
             return View(location);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var location = await _context.Location.FindAsync(id);
+            var location = await repository.GetLocationByIdAsync(id.Value);
             if (location == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(location);
-                    await _context.SaveChangesAsync();
+                   await repository.UpdateLocationAsync(location);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LocationExists(location.Id))
+                    var exists = await repository.LocationExistsAsync(id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var location = await _context.Location
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var location = await repository.GetLocationByIdAsync(id.Value);
             if (location == null)
             {
                 return NotFound();
@@ -139,19 +134,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var location = await _context.Location.FindAsync(id);
-            if (location != null)
-            {
-                _context.Location.Remove(location);
-            }
-
-            await _context.SaveChangesAsync();
+           await repository.DeleteLocationAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LocationExists(int id)
-        {
-            return _context.Location.Any(e => e.Id == id);
-        }
+        
     }
 }

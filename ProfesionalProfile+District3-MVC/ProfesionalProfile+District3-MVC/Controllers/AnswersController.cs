@@ -7,23 +7,23 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class AnswersController : Controller
+    public class AnswersController(IAnswerRepo _answerRepo, IQuestionRepo _questionRepo) : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public AnswersController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        private readonly IAnswerRepo _answerRepo = _answerRepo;
+        private readonly IQuestionRepo _questionRepo = _questionRepo;
 
         // GET: Answers
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Answers.Include(a => a.Question);
-            return View(await applicationDbContext.ToListAsync());
+            return View(_answerRepo.GetAll());
+
+            //var applicationDbContext = _context.Answers.Include(a => a.Question);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Answers/Details/5
@@ -34,13 +34,15 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var answer = await _context.Answers
+            var answer = _answerRepo.GetById(id.Value);
+
+            /*var answer = await _context.Answers
                 .Include(a => a.Question)
                 .FirstOrDefaultAsync(m => m.answerId == id);
             if (answer == null)
             {
                 return NotFound();
-            }
+            }*/
 
             return View(answer);
         }
@@ -48,7 +50,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Answers/Create
         public IActionResult Create()
         {
-            ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId");
+            /*Answer answer = new Answer();
+            answer.Question = new Question();
+            _answerRepo.Add(answer);*/
+            ViewData["questionId"] = new SelectList(_questionRepo.GetAll(), "questionId", "questionId");
+            //ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId");
             return View();
         }
 
@@ -63,11 +69,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             
             if (ModelState.IsValid)
             {
-                _context.Add(answer);
-                await _context.SaveChangesAsync();
+                _answerRepo.Add(answer);
                 return RedirectToAction(nameof(Index));
+                /*_context.Add(answer);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));*/
             }
-            ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId", answer.questionId);
+            ViewData["questionId"] = new SelectList(_answerRepo.GetAll(), "questionId", "questionId", answer.questionId);
+            //ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId", answer.questionId);
             return View(answer);
         }
 
@@ -79,12 +88,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var answer = await _context.Answers.FindAsync(id);
+            var answer = _answerRepo.GetById(id.Value);
+            //var answer = await _context.Answers.FindAsync(id);
             if (answer == null)
             {
                 return NotFound();
             }
-            ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId", answer.questionId);
+            ViewData["questionId"] = new SelectList(_answerRepo.GetAll(), "questionId", "questionId", answer.questionId);
+            //ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId", answer.questionId);
             return View(answer);
         }
 
@@ -104,8 +115,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(answer);
-                    await _context.SaveChangesAsync();
+                    _answerRepo.Update(answer);
+                    /*_context.Update(answer);
+                    await _context.SaveChangesAsync();*/
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -120,7 +132,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId", answer.questionId);
+            ViewData["questionId"] = new SelectList(_answerRepo.GetAll(), "questionId", "questionId", answer.questionId);
+            //ViewData["questionId"] = new SelectList(_context.Questions, "questionId", "questionId", answer.questionId);
             return View(answer);
         }
 
@@ -131,10 +144,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
-            var answer = await _context.Answers
+            var answer = _answerRepo.GetById(id.Value);
+            /*var answer = await _context.Answers
                 .Include(a => a.Question)
-                .FirstOrDefaultAsync(m => m.answerId == id);
+                .FirstOrDefaultAsync(m => m.answerId == id);*/
             if (answer == null)
             {
                 return NotFound();
@@ -148,19 +161,28 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var answer = await _context.Answers.FindAsync(id);
+            /*var answer = await _context.Answers.FindAsync(id);
             if (answer != null)
             {
                 _context.Answers.Remove(answer);
-            }
+            }*/
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
+            _answerRepo.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
         private bool AnswerExists(int id)
         {
-            return _context.Answers.Any(e => e.answerId == id);
+            try
+            {
+                _answerRepo.GetById(id);
+                return true;
+            } catch (Exception)
+            {
+                return false;
+            }
+            //return _context.Answers.Any(e => e.answerId == id);
         }
     }
 }

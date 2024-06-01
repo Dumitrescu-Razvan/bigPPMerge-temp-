@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class FollowedFeedFollowedUsersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFollowedFeedFollowedUsersRepository repository;
 
-        public FollowedFeedFollowedUsersController(ApplicationDbContext context)
+        public FollowedFeedFollowedUsersController(IFollowedFeedFollowedUsersRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: FollowedFeedFollowedUsers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FollowedFeedFollowedUsers.ToListAsync());
+            var followedFeedFollowedUsers = await repository.GetFollowedFeedFollowedUsersAsync();
+            return View(followedFeedFollowedUsers);
         }
 
         // GET: FollowedFeedFollowedUsers/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followedFeedFollowedUsers = await _context.FollowedFeedFollowedUsers
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var followedFeedFollowedUsers = await repository.GetFollowedFeedFollowedUsersByIdAsync(id.Value);
             if (followedFeedFollowedUsers == null)
             {
                 return NotFound();
@@ -58,8 +59,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(followedFeedFollowedUsers);
-                await _context.SaveChangesAsync();
+                await repository.AddFollowedFeedFollowedUsersAsync(followedFeedFollowedUsers);
                 return RedirectToAction(nameof(Index));
             }
             return View(followedFeedFollowedUsers);
@@ -73,7 +73,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followedFeedFollowedUsers = await _context.FollowedFeedFollowedUsers.FindAsync(id);
+            var followedFeedFollowedUsers = await repository.GetFollowedFeedFollowedUsersByIdAsync(id.Value);
             if (followedFeedFollowedUsers == null)
             {
                 return NotFound();
@@ -97,12 +97,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(followedFeedFollowedUsers);
-                    await _context.SaveChangesAsync();
+                   await repository.UpdateFollowedFeedFollowedUsersAsync(followedFeedFollowedUsers);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FollowedFeedFollowedUsersExists(followedFeedFollowedUsers.ID))
+                    var exists = await repository.FollowedFeedFollowedUsersExistsAsync(id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +124,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var followedFeedFollowedUsers = await _context.FollowedFeedFollowedUsers
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var followedFeedFollowedUsers = await repository.GetFollowedFeedFollowedUsersByIdAsync(id.Value);
             if (followedFeedFollowedUsers == null)
             {
                 return NotFound();
@@ -139,19 +138,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var followedFeedFollowedUsers = await _context.FollowedFeedFollowedUsers.FindAsync(id);
-            if (followedFeedFollowedUsers != null)
-            {
-                _context.FollowedFeedFollowedUsers.Remove(followedFeedFollowedUsers);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteFollowedFeedFollowedUsersAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FollowedFeedFollowedUsersExists(int id)
-        {
-            return _context.FollowedFeedFollowedUsers.Any(e => e.ID == id);
-        }
     }
 }

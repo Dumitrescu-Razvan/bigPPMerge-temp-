@@ -11,7 +11,7 @@ namespace ProfesionalProfile_District3_MVC.Models
     {
         [Key]
         public int Id { get; set; }
-        public int userId { get; set; }
+        public string userId { get; set; }
         public bool CanViewEducation { get; set; }
         public bool CanViewWorkExperience { get; set; }
         public bool CanViewSkills { get; set; }

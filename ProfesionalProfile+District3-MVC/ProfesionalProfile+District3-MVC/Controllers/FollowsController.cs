@@ -6,23 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class FollowsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFollowsRepository repository;
 
-        public FollowsController(ApplicationDbContext context)
+        public FollowsController(IFollowsRepository repository)
         {
-            _context = context;
+            this.repository = repository;
         }
 
         // GET: Follows
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Follow.ToListAsync());
+            var follows = await repository.GetFollowsAsync();
+            return View(follows);
         }
 
         // GET: Follows/Details/5
@@ -33,8 +35,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var follow = await _context.Follow
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var follow = await repository.GetFollowByIdAsync(id.Value);
             if (follow == null)
             {
                 return NotFound();
@@ -56,12 +57,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,sender,receiver,isCloseFriend,expirationTimeStamp,description")] Follow follow)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(follow);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddFollowAsync(follow);
             return View(follow);
         }
 
@@ -73,7 +69,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var follow = await _context.Follow.FindAsync(id);
+            var follow = await repository.GetFollowByIdAsync(id.Value);
             if (follow == null)
             {
                 return NotFound();
@@ -97,12 +93,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(follow);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateFollowAsync(follow);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FollowExists(follow.Id))
+                    var exists = await repository.FollowExistsAsync(follow.Id);
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -124,8 +120,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var follow = await _context.Follow
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var follow = await repository.GetFollowByIdAsync(id.Value);
             if (follow == null)
             {
                 return NotFound();
@@ -139,19 +134,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var follow = await _context.Follow.FindAsync(id);
-            if (follow != null)
-            {
-                _context.Follow.Remove(follow);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteFollowAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FollowExists(int id)
-        {
-            return _context.Follow.Any(e => e.Id == id);
-        }
     }
 }

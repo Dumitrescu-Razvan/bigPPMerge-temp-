@@ -7,7 +7,7 @@ namespace ProfesionalProfile_District3_MVC.Models
     {
         [Key]
         public int notificationId { get; set;}
-        public int userId { get; set; }
+        public string userId { get; set; }
         public string activity { get; set; }
         public DateTime timestamp { get; set; }
         public string details { get; set; }

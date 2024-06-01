@@ -6,23 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class TrendingFeedsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITrendingFeedRepository repository;
 
-        public TrendingFeedsController(ApplicationDbContext context)
+        public TrendingFeedsController(ITrendingFeedRepository trendingFeedRepository)
         {
-            _context = context;
+            repository = trendingFeedRepository;
         }
-
         // GET: TrendingFeeds
         public async Task<IActionResult> Index()
         {
-            return View(await _context.TrendingFeeds.ToListAsync());
+            var trendingFeeds = await repository.GetTrendingFeedsAsync();
+            return View(trendingFeeds);
         }
 
         // GET: TrendingFeeds/Details/5
@@ -33,8 +34,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var trendingFeed = await _context.TrendingFeeds
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var trendingFeed = await repository.GetTrendingFeedByIdAsync(id.Value);
             if (trendingFeed == null)
             {
                 return NotFound();
@@ -56,12 +56,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,ReactionThreshold,LikeCount,ViewCount,CommentCount")] TrendingFeed trendingFeed)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(trendingFeed);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            await repository.AddTrendingFeedAsync(trendingFeed);
             return View(trendingFeed);
         }
 
@@ -73,7 +68,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var trendingFeed = await _context.TrendingFeeds.FindAsync(id);
+            var trendingFeed = await repository.GetTrendingFeedByIdAsync(id.Value);
             if (trendingFeed == null)
             {
                 return NotFound();
@@ -97,12 +92,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(trendingFeed);
-                    await _context.SaveChangesAsync();
+                   await repository.UpdateTrendingFeedAsync(trendingFeed);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TrendingFeedExists(trendingFeed.ID))
+                    var trendingFeedExists = await repository.TrendingFeedExistsAsync(trendingFeed.ID);
+                    if (!trendingFeedExists)
                     {
                         return NotFound();
                     }
@@ -124,8 +119,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var trendingFeed = await _context.TrendingFeeds
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var trendingFeed = await repository.GetTrendingFeedByIdAsync(id.Value);
             if (trendingFeed == null)
             {
                 return NotFound();
@@ -139,19 +133,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var trendingFeed = await _context.TrendingFeeds.FindAsync(id);
-            if (trendingFeed != null)
-            {
-                _context.TrendingFeeds.Remove(trendingFeed);
-            }
-
-            await _context.SaveChangesAsync();
+            await repository.DeleteTrendingFeedAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool TrendingFeedExists(int id)
-        {
-            return _context.TrendingFeeds.Any(e => e.ID == id);
         }
     }
 }

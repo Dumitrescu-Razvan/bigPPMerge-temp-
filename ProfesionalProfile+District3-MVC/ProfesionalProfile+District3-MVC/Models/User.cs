@@ -5,14 +5,15 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProfesionalProfile_District3_MVC.Models
 {
-    public class User
+    public class User : IdentityUser
     {
         // <------------------------------------ District3 ------------------------------------>
-        public int Id { get; set; }
-        public string? Username { get; set; }
+        public string Id { get; set; }
+        //public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string? ConfirmationPassword { get; set; }
@@ -24,7 +25,7 @@ namespace ProfesionalProfile_District3_MVC.Models
         public int? GroupId { get; set; }
         public Group? Group { get; set; }
 
-        // From ProfessionalProfile
+        // From ProfesionalProfile_District3_MVC
 
         public string? Summary { get; set; }
         public bool? DarkTheme { get; set; }
@@ -33,7 +34,7 @@ namespace ProfesionalProfile_District3_MVC.Models
 
         
 
-        // <------------------------------------ ProfessionalProfile ------------------------------------>
+        // <------------------------------------ ProfesionalProfile_District3_MVC ------------------------------------>
         /**public int userId { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }

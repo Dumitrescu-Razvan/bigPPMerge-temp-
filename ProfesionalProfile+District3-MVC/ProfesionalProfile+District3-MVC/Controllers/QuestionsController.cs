@@ -7,23 +7,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class QuestionsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IQuestionRepo _questionRepo;
+        private readonly IAssessmentTestRepo _assessmentTestRepo;
+        //private readonly ApplicationDbContext _context;
 
-        public QuestionsController(ApplicationDbContext context)
+        public QuestionsController(IQuestionRepo questionRepo, IAssessmentTestRepo assessmentTestRepo)
         {
-            _context = context;
+            _questionRepo = questionRepo;
+            _assessmentTestRepo = assessmentTestRepo;
+
+            //_context = context;
         }
 
         // GET: Questions
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Questions.Include(q => q.AssessmentTest);
-            return View(await applicationDbContext.ToListAsync());
+            var questions = _questionRepo.GetAll();
+            return View(questions);
+            //var applicationDbContext = _context.Questions.Include(q => q.AssessmentTest);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Questions/Details/5
@@ -34,9 +42,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var question = await _context.Questions
+            var question = _questionRepo.GetById(id.Value);
+            /*var question = await _context.Questions
                 .Include(q => q.AssessmentTest)
-                .FirstOrDefaultAsync(m => m.questionId == id);
+                .FirstOrDefaultAsync(m => m.questionId == id);*/
             if (question == null)
             {
                 return NotFound();
@@ -48,7 +57,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Questions/Create
         public IActionResult Create()
         {
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId");
+            ViewData["assesmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assessmentTestId", "assessmentTestId");
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId");
             return View();
         }
 
@@ -62,11 +72,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("AssessmentTest");
             if (ModelState.IsValid)
             {
-                _context.Add(question);
-                await _context.SaveChangesAsync();
+                _questionRepo.Add(question);
+                //_context.Add(question);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", question.assesmentTestId);
+            ViewData["assesmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assessmentTestId", "assessmentTestId", question.assesmentTestId);
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", question.assesmentTestId);
             return View(question);
         }
 
@@ -78,12 +90,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var question = await _context.Questions.FindAsync(id);
+            var question = _questionRepo.GetById(id.Value);
+            //var question = await _context.Questions.FindAsync(id);
             if (question == null)
             {
                 return NotFound();
             }
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", question.assesmentTestId);
+            ViewData["assesmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assessmentTestId", "assessmentTestId", question.assesmentTestId);
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", question.assesmentTestId);
             return View(question);
         }
 
@@ -103,8 +117,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(question);
-                    await _context.SaveChangesAsync();
+                    _questionRepo.Update(question);
+                    //_context.Update(question);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +134,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", question.assesmentTestId);
+            ViewData["assesmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assessmentTestId", "assessmentTestId", question.assesmentTestId);
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", question.assesmentTestId);
             return View(question);
         }
 
@@ -131,9 +147,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var question = await _context.Questions
+            var question = _questionRepo.GetById(id.Value);
+            /*var question = await _context.Questions
                 .Include(q => q.AssessmentTest)
-                .FirstOrDefaultAsync(m => m.questionId == id);
+                .FirstOrDefaultAsync(m => m.questionId == id);*/
             if (question == null)
             {
                 return NotFound();
@@ -147,19 +164,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var question = await _context.Questions.FindAsync(id);
+            var question = _questionRepo.GetById(id);
+            //var question = await _context.Questions.FindAsync(id);
             if (question != null)
             {
-                _context.Questions.Remove(question);
+                _questionRepo.Delete(question.questionId);
+                //_context.Questions.Remove(question);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool QuestionExists(int id)
         {
-            return _context.Questions.Any(e => e.questionId == id);
+            return _questionRepo.Equals(id);
+            //return _context.Questions.Any(e => e.questionId == id);
         }
     }
 }

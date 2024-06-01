@@ -5,25 +5,32 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProfesionalProfile_District3_MVC.Data;
+using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Repositories;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class AssessmentResultsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IAssessmentResultRepo _assessmentResultRepo;
+        private readonly IAssessmentTestRepo _assessmentTestRepo;
+        private readonly IUserRepo _userRepo;
 
-        public AssessmentResultsController(ApplicationDbContext context)
+        public AssessmentResultsController(IAssessmentResultRepo assessmentResultRepo, IAssessmentTestRepo assessmentTestRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _assessmentResultRepo = assessmentResultRepo;
+            _assessmentTestRepo = assessmentTestRepo;
+            _userRepo = userRepo;
         }
 
         // GET: AssessmentResults
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.AssessmentResults.Include(a => a.AssessmentTest).Include(a => a.User);
-            return View(await applicationDbContext.ToListAsync());
+            return View(_assessmentResultRepo.GetAll());
+            //var applicationDbContext = _context.AssessmentResults.Include(a => a.AssessmentTest).Include(a => a.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: AssessmentResults/Details/5
@@ -34,10 +41,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var assessmentResult = await _context.AssessmentResults
+            var assessmentResult = _assessmentResultRepo.GetById(id.Value);
+            /*var assessmentResult = await _context.AssessmentResults
                 .Include(a => a.AssessmentTest)
                 .Include(a => a.User)
-                .FirstOrDefaultAsync(m => m.assesmentResultId == id);
+                .FirstOrDefaultAsync(m => m.assesmentResultId == id);*/
             if (assessmentResult == null)
             {
                 return NotFound();
@@ -49,8 +57,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: AssessmentResults/Create
         public IActionResult Create()
         {
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId");
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["asssmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assesmentTestId", "assesmentTestId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -66,12 +76,15 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             
             if (ModelState.IsValid)
             {
-                _context.Add(assessmentResult);
-                await _context.SaveChangesAsync();
+                _assessmentResultRepo.Add(assessmentResult);
+                //_context.Add(assessmentResult);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", assessmentResult.assesmentTestId);
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentResult.userId);
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", assessmentResult.assesmentTestId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentResult.userId);
+            ViewData["asssmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assesmentTestId", "assesmentTestId", assessmentResult.assesmentTestId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", assessmentResult.userId);
             return View(assessmentResult);
         }
 
@@ -83,13 +96,16 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var assessmentResult = await _context.AssessmentResults.FindAsync(id);
+            var assessmentResult = _assessmentResultRepo.GetById(id.Value);
+            //var assessmentResult = await _context.AssessmentResults.FindAsync(id);
             if (assessmentResult == null)
             {
                 return NotFound();
             }
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", assessmentResult.assesmentTestId);
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentResult.userId);
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", assessmentResult.assesmentTestId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentResult.userId);
+            ViewData["asssmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assesmentTestId", "assesmentTestId", assessmentResult.assesmentTestId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", assessmentResult.userId);
             return View(assessmentResult);
         }
 
@@ -109,8 +125,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(assessmentResult);
-                    await _context.SaveChangesAsync();
+                    _assessmentResultRepo.Update(assessmentResult);
+                    //_context.Update(assessmentResult);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,8 +142,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", assessmentResult.assesmentTestId);
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentResult.userId);
+            ViewData["asssmentTestId"] = new SelectList(_assessmentTestRepo.GetAll(), "assesmentTestId", "assesmentTestId", assessmentResult.assesmentTestId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", assessmentResult.userId);
+            //ViewData["assesmentTestId"] = new SelectList(_context.AssessmentTests, "assessmentTestId", "assessmentTestId", assessmentResult.assesmentTestId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentResult.userId);
             return View(assessmentResult);
         }
 
@@ -138,10 +157,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var assessmentResult = await _context.AssessmentResults
-                .Include(a => a.AssessmentTest)
-                .Include(a => a.User)
-                .FirstOrDefaultAsync(m => m.assesmentResultId == id);
+            var assessmentResult = _assessmentResultRepo.GetById(id.Value);
+            //var assessmentResult = await _context.AssessmentResults
+            //    .Include(a => a.AssessmentTest)
+            //    .Include(a => a.User)
+            //    .FirstOrDefaultAsync(m => m.assesmentResultId == id);
             if (assessmentResult == null)
             {
                 return NotFound();
@@ -155,19 +175,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var assessmentResult = await _context.AssessmentResults.FindAsync(id);
+            var assessmentResult = _assessmentResultRepo.GetById(id);
+            //var assessmentResult = await _context.AssessmentResults.FindAsync(id);
             if (assessmentResult != null)
             {
-                _context.AssessmentResults.Remove(assessmentResult);
+                _assessmentResultRepo.Delete(id);
+                //_context.AssessmentResults.Remove(assessmentResult);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AssessmentResultExists(int id)
         {
-            return _context.AssessmentResults.Any(e => e.assesmentResultId == id);
+            return _assessmentResultRepo.GetAll().Any(e => e.assesmentResultId == id);
+            //return _context.AssessmentResults.Any(e => e.assesmentResultId == id);
         }
     }
 }

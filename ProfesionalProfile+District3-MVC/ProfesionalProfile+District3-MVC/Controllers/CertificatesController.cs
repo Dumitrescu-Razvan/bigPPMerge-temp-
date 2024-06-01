@@ -7,23 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class CertificatesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly ICertificateRepo _certificateRepo;
+        private readonly IUserRepo _userRepo;
 
-        public CertificatesController(ApplicationDbContext context)
+        public CertificatesController(ICertificateRepo certificateRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _certificateRepo = certificateRepo;
+            _userRepo = userRepo;
         }
 
         // GET: Certificates
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Certificates.Include(c => c.User);
-            return View(await applicationDbContext.ToListAsync());
+            var certificates = _certificateRepo.GetAll();
+            return View(certificates);
+            //var applicationDbContext = _context.Certificates.Include(c => c.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Certificates/Details/5
@@ -34,9 +40,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var certificate = await _context.Certificates
+            var certificate = _certificateRepo.GetById(id.Value);
+            /*var certificate = await _context.Certificates
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.certificateId == id);
+                .FirstOrDefaultAsync(m => m.certificateId == id);*/
             if (certificate == null)
             {
                 return NotFound();
@@ -48,7 +55,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: Certificates/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -62,11 +70,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("User");
             if (ModelState.IsValid)
             {
-                _context.Add(certificate);
-                await _context.SaveChangesAsync();
+                _certificateRepo.Add(certificate);
+                /*_context.Add(certificate);
+                await _context.SaveChangesAsync();*/
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", certificate.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", certificate.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", certificate.userId);
             return View(certificate);
         }
 
@@ -78,12 +88,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var certificate = await _context.Certificates.FindAsync(id);
+            var certificate = _certificateRepo.GetById(id.Value);
+            //var certificate = await _context.Certificates.FindAsync(id);
             if (certificate == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", certificate.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", certificate.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", certificate.userId);
             return View(certificate);
         }
 
@@ -103,8 +115,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(certificate);
-                    await _context.SaveChangesAsync();
+                    _certificateRepo.Update(certificate);
+                    //_context.Update(certificate);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +132,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", certificate.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", certificate.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", certificate.userId);
             return View(certificate);
         }
 
@@ -131,9 +145,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var certificate = await _context.Certificates
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.certificateId == id);
+            var certificate = _certificateRepo.GetById(id.Value);
+            //var certificate = await _context.Certificates
+            //    .Include(c => c.User)
+            //    .FirstOrDefaultAsync(m => m.certificateId == id);
             if (certificate == null)
             {
                 return NotFound();
@@ -147,19 +162,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var certificate = await _context.Certificates.FindAsync(id);
+            //var certificate = await _context.Certificates.FindAsync(id);
+            var certificate = _certificateRepo.GetById(id);
             if (certificate != null)
             {
-                _context.Certificates.Remove(certificate);
+                _certificateRepo.Delete(id);
+                //_context.Certificates.Remove(certificate);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CertificateExists(int id)
         {
-            return _context.Certificates.Any(e => e.certificateId == id);
+            return _certificateRepo.GetById(id) != null;
+            //return _context.Certificates.Any(e => e.certificateId == id);
         }
     }
 }

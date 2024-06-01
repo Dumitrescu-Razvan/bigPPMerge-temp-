@@ -7,23 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
+using ProfesionalProfile_District3_MVC.Interfaces;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
     public class WorkExperiencesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
+        private readonly IWorkExperienceRepo _workExperienceRepo;
+        private readonly IUserRepo _userRepo;
 
-        public WorkExperiencesController(ApplicationDbContext context)
+        public WorkExperiencesController(IWorkExperienceRepo workExperienceRepo, IUserRepo userRepo)
         {
-            _context = context;
+            _workExperienceRepo = workExperienceRepo;
+            _userRepo = userRepo;
         }
 
         // GET: WorkExperiences
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.WorkExperiences.Include(w => w.User);
-            return View(await applicationDbContext.ToListAsync());
+            var workExperiences = _workExperienceRepo.GetAll();
+            return View(workExperiences);
+            //var applicationDbContext = _context.WorkExperiences.Include(w => w.User);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: WorkExperiences/Details/5
@@ -33,10 +39,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 return NotFound();
             }
-
-            var workExperience = await _context.WorkExperiences
+            
+            var workExperience = _workExperienceRepo.GetById(id.Value);
+            /*var workExperience = await _context.WorkExperiences
                 .Include(w => w.User)
-                .FirstOrDefaultAsync(m => m.workId == id);
+                .FirstOrDefaultAsync(m => m.workId == id);*/
             if (workExperience == null)
             {
                 return NotFound();
@@ -48,7 +55,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // GET: WorkExperiences/Create
         public IActionResult Create()
         {
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId");
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId");
             return View();
         }
 
@@ -62,11 +70,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             ModelState.Remove("User");
             if (ModelState.IsValid)
             {
-                _context.Add(workExperience);
-                await _context.SaveChangesAsync();
+                _workExperienceRepo.Add(workExperience);
+                //_context.Add(workExperience);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", workExperience.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", workExperience.userId); 
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", workExperience.userId);
             return View(workExperience);
         }
 
@@ -78,12 +88,14 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var workExperience = await _context.WorkExperiences.FindAsync(id);
+            var workExperience = _workExperienceRepo.GetById(id.Value);
+            //var workExperience = await _context.WorkExperiences.FindAsync(id);
             if (workExperience == null)
             {
                 return NotFound();
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", workExperience.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", workExperience.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", workExperience.userId);
             return View(workExperience);
         }
 
@@ -103,8 +115,9 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    _context.Update(workExperience);
-                    await _context.SaveChangesAsync();
+                    _workExperienceRepo.Update(workExperience);
+                    //_context.Update(workExperience);
+                    //await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +132,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", workExperience.userId);
+            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", workExperience.userId);
+            //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", workExperience.userId);
             return View(workExperience);
         }
 
@@ -131,9 +145,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var workExperience = await _context.WorkExperiences
+            var workExperience = _workExperienceRepo.GetById(id.Value);
+            /*var workExperience = await _context.WorkExperiences
                 .Include(w => w.User)
-                .FirstOrDefaultAsync(m => m.workId == id);
+                .FirstOrDefaultAsync(m => m.workId == id);*/
             if (workExperience == null)
             {
                 return NotFound();
@@ -147,19 +162,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var workExperience = await _context.WorkExperiences.FindAsync(id);
+            var workExperience = _workExperienceRepo.GetById(id);
+            /*var workExperience = await _context.WorkExperiences.FindAsync(id);*/
             if (workExperience != null)
             {
-                _context.WorkExperiences.Remove(workExperience);
+                _workExperienceRepo.Delete(workExperience.workId);
+                //_context.WorkExperiences.Remove(workExperience);
             }
 
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool WorkExperienceExists(int id)
         {
-            return _context.WorkExperiences.Any(e => e.workId == id);
+            return _workExperienceRepo.GetAll().Any(e => e.workId == id);
+            //return _context.WorkExperiences.Any(e => e.workId == id);
         }
     }
 }
