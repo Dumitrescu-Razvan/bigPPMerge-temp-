@@ -8,6 +8,7 @@ namespace ProfesionalProfile_District3_MVC.Repositories
     public class EndorsementRepo : IEndorsementRepo
     {
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+
         public EndorsementRepo(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
