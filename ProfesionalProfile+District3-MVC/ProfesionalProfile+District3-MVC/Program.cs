@@ -25,6 +25,7 @@ builder.Services.AddScoped<IEducationRepo, EducationRepo>();
 builder.Services.AddScoped<IEndorsementRepo, EndorsementRepo>();
 builder.Services.AddScoped<INotificationRepo, NotificationRepo>();
 builder.Services.AddScoped<IPrivacyRepo, PrivacyRepo>();
+builder.Services.AddScoped<IProjectRepo, ProjectRepo>();
 
 var app = builder.Build();
 
