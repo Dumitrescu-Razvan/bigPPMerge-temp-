@@ -20,6 +20,7 @@ builder.Services.AddScoped<IAssessmentTestRepo, AssessmentTestRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<ISkillRepo, SkillRepo>();
 builder.Services.AddScoped<IBusinessCardRepo, BusinessCardRepo>();
+builder.Services.AddScoped<ICertificateRepo, CertificateRepo>();
 
 var app = builder.Build();
 
