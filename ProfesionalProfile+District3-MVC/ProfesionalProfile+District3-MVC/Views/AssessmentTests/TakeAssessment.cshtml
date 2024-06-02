@@ -1,0 +1,68 @@
+@model IEnumerable<ProfesionalProfile_District3_MVC.Models.AssessmentTest>
+@{
+    ViewData["Title"] = "TakeAssessment";
+}
+
+<h1>TakeAssessment</h1>
+
+<h4>AssessmentTest</h4>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Assessments</h4>
+            <ul>
+                @foreach (var assessment in Model)
+                {
+                    <li>
+                       <h1>@assessment.testName</h1>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h4>Questions</h4>
+            <ul id="questionsContainer"></ul>
+        </div>
+        <div class="col-md-4">
+            <h4>Answers</h4>
+            <ul id="answersContainer"></ul>
+        </div>
+    </div>
+</div>
+
+@* <script>
+    function loadQuestions(assessmentId) {
+        // Make an AJAX request to fetch the questions for the selected assessment
+        $.ajax({
+            url: '/AssessmentTests/GetQuestions',
+            type: 'GET',
+            data: { assessmentId: assessmentId },
+            success: function (data) {
+                // Clear the questions container
+                $('#questionsContainer').empty();
+                // Populate the questions container with the fetched questions
+                $.each(data, function (index, question) {
+                    $('#questionsContainer').append('<li><a href="#" onclick="loadAnswers(\'' + question.Id + '\')">' + question.Text + '</a></li>');
+                });
+            }
+        });
+    }
+
+    function loadAnswers(questionId) {
+        // Make an AJAX request to fetch the answers for the selected question
+        $.ajax({
+            url: '/AssessmentTests/GetAnswers',
+            type: 'GET',
+            data: { questionId: questionId },
+            success: function (data) {
+                // Clear the answers container
+                $('#answersContainer').empty();
+                // Populate the answers container with the fetched answers
+                $.each(data, function (index, answer) {
+                    $('#answersContainer').append('<li>' + answer.Text + '</li>');
+                });
+            }
+        });
+    }
+</script> *@

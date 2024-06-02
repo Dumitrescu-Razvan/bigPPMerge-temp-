@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using ProfesionalProfile_District3_MVC.Data;
 using ProfesionalProfile_District3_MVC.Models;
 using ProfesionalProfile_District3_MVC.Interfaces;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
@@ -69,13 +71,21 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("assessmentTestId,testName,userId,description,skillid")] AssessmentTest assessmentTest)
+        public async Task<IActionResult> Create([Bind("assessmentTestId,testName,description,skillid")] AssessmentTest assessmentTest)
         {   
 
             ModelState.Remove("User");
             ModelState.Remove("Skill");
             ModelState.Remove("AssessmentResult");
-            
+            ModelState.Remove("userId");
+            //q: how do i make the userId in the current assessmentTest always be 1?
+            assessmentTest.userId = "1";            
+
+            IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in allErrors)
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
             if (ModelState.IsValid)
             {
                 _assessmentTestRepo.Add(assessmentTest);
@@ -84,7 +94,6 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["skillid"] = new SelectList(_skillRepo.GetAll(), "skillId", "skillId", assessmentTest.skillid);
-            ViewData["userId"] = new SelectList(_userRepo.GetAll(), "userId", "userId", assessmentTest.userId);
             //ViewData["skillid"] = new SelectList(_context.Skills, "skillId", "skillId", assessmentTest.skillid);
             //ViewData["userId"] = new SelectList(_context.Users, "userId", "userId", assessmentTest.userId);
             return View(assessmentTest);
@@ -192,6 +201,13 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         {
             return _assessmentTestRepo.GetAll().Any(e => e.assessmentTestId == id);
             //return _context.AssessmentTests.Any(e => e.assessmentTestId == id);
+        }
+
+        // // GET: AssessmentTests/TakeAssessment
+        public IActionResult TakeAssessment()
+        {
+            ViewData["skillid"] = new SelectList(_skillRepo.GetAll(), "skillId", "skillId");
+            return View();
         }
     }
 }
