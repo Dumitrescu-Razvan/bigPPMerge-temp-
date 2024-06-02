@@ -10,5 +10,7 @@ namespace ProfesionalProfile_District3_MVC.Interfaces
         public void Update(AssessmentTest item);
         public void Delete(int id);
         public int GetIdByName(string testName);
+
+        public List<Question> GetQuestions(int id);
     }
 }

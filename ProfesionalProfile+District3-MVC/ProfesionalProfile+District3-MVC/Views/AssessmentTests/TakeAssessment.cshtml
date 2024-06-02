@@ -1,4 +1,6 @@
-@model IEnumerable<ProfesionalProfile_District3_MVC.Models.AssessmentTest>
+@model ProfesionalProfile_District3_MVC.Controllers.TakeAssessmentViewModel;
+
+
 @{
     ViewData["Title"] = "TakeAssessment";
 }
@@ -11,18 +13,25 @@
     <div class="row">
         <div class="col-md-4">
             <h4>Assessments</h4>
-            <ul>
-                @foreach (var assessment in Model)
+
+            <select id="assessmentList" class="form-control">
+                @foreach (var assessment in Model.AssessmentTests)
                 {
-                    <li>
-                       <h1>@assessment.testName</h1>
-                    </li>
+                    <option value="@assessment.assessmentTestId">@assessment.testName</option>
                 }
-            </ul>
+              </select>
         </div>
         <div class="col-md-4">
             <h4>Questions</h4>
-            <ul id="questionsContainer"></ul>
+            <select id="questionsContainer" class="form-control">
+                @foreach (var questionList in Model.Questions)
+                {
+                    foreach (var question in questionList)
+                    {
+                        <option value="@question.questionId">@question.questionText</option>
+                    }
+                }
+                </select>
         </div>
         <div class="col-md-4">
             <h4>Answers</h4>
@@ -30,39 +39,3 @@
         </div>
     </div>
 </div>
-
-@* <script>
-    function loadQuestions(assessmentId) {
-        // Make an AJAX request to fetch the questions for the selected assessment
-        $.ajax({
-            url: '/AssessmentTests/GetQuestions',
-            type: 'GET',
-            data: { assessmentId: assessmentId },
-            success: function (data) {
-                // Clear the questions container
-                $('#questionsContainer').empty();
-                // Populate the questions container with the fetched questions
-                $.each(data, function (index, question) {
-                    $('#questionsContainer').append('<li><a href="#" onclick="loadAnswers(\'' + question.Id + '\')">' + question.Text + '</a></li>');
-                });
-            }
-        });
-    }
-
-    function loadAnswers(questionId) {
-        // Make an AJAX request to fetch the answers for the selected question
-        $.ajax({
-            url: '/AssessmentTests/GetAnswers',
-            type: 'GET',
-            data: { questionId: questionId },
-            success: function (data) {
-                // Clear the answers container
-                $('#answersContainer').empty();
-                // Populate the answers container with the fetched answers
-                $.each(data, function (index, answer) {
-                    $('#answersContainer').append('<li>' + answer.Text + '</li>');
-                });
-            }
-        });
-    }
-</script> *@

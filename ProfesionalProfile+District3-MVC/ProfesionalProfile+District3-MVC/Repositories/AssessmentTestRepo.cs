@@ -62,5 +62,13 @@ namespace ProfesionalProfile_District3_MVC.Repositories
                 return context.AssessmentTests.Where(x => x.testName == testName).Select(x => x.assessmentTestId).FirstOrDefault();
             }
         } 
+
+        public List<Question> GetQuestions(int id)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Questions.Where(x => x.assesmentTestId == id).ToList();
+            }
+        }
     }
 }

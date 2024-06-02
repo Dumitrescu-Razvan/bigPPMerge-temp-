@@ -206,8 +206,43 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // // GET: AssessmentTests/TakeAssessment
         public IActionResult TakeAssessment()
         {
-            ViewData["skillid"] = new SelectList(_skillRepo.GetAll(), "skillId", "skillId");
-            return View();
+            var assessments = _assessmentTestRepo.GetAll();
+            var ListOfQuestions = new List<List<Question>>();
+            foreach(AssessmentTest assessmnent in assessments)
+            {
+                Console.WriteLine(assessmnent.testName);
+                var questions = _assessmentTestRepo.GetQuestions(assessmnent.assessmentTestId);
+                foreach(Question question in questions)
+                {
+                    Console.WriteLine(question.questionText);
+                }
+                ListOfQuestions.Add(questions);
+                
+            }
+            var model = new TakeAssessmentViewModel
+            {
+                AssessmentTests = assessments,
+                Questions = ListOfQuestions
+            };
+            return View(model);
+
         }
+
+        public JsonResult GetQuestions(int id)
+        {
+            var questions = _assessmentTestRepo.GetQuestions(id);
+            for (int i = 0; i < questions.Count; i++)
+            {
+                //questions[i].Answers = questions[i].Answers.OrderBy(x => Guid.NewGuid()).ToList();
+                Console.WriteLine(questions[i].questionText);
+            }
+            return Json(questions);
+        }
+
     }
+        public class TakeAssessmentViewModel
+        {
+            public ICollection<AssessmentTest> AssessmentTests { get; set; }
+            public List<List<Question>> Questions { get; set; }
+        }
 }
