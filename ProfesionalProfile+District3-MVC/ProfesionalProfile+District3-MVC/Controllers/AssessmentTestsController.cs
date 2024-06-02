@@ -204,45 +204,54 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         }
 
         // // GET: AssessmentTests/TakeAssessment
+
         public IActionResult TakeAssessment()
         {
             var assessments = _assessmentTestRepo.GetAll();
             var ListOfQuestions = new List<List<Question>>();
+            var ListOfAnswers = new List<List<List<Answer>>>();
             foreach(AssessmentTest assessmnent in assessments)
             {
-                Console.WriteLine(assessmnent.testName);
                 var questions = _assessmentTestRepo.GetQuestions(assessmnent.assessmentTestId);
+                var answers = new List<List<Answer>>();
                 foreach(Question question in questions)
                 {
-                    Console.WriteLine(question.questionText);
+                    answers.Add(_assessmentTestRepo.GetAnswers(question.questionId));
                 }
                 ListOfQuestions.Add(questions);
+                ListOfAnswers.Add(answers);
                 
             }
             var model = new TakeAssessmentViewModel
             {
                 AssessmentTests = assessments,
-                Questions = ListOfQuestions
+                Questions = ListOfQuestions,
+                Answers = ListOfAnswers
             };
             return View(model);
-
         }
 
-        public JsonResult GetQuestions(int id)
+        public Boolean CheckAnswer(int questionId, int answerId)
         {
-            var questions = _assessmentTestRepo.GetQuestions(id);
-            for (int i = 0; i < questions.Count; i++)
-            {
-                //questions[i].Answers = questions[i].Answers.OrderBy(x => Guid.NewGuid()).ToList();
-                Console.WriteLine(questions[i].questionText);
-            }
-            return Json(questions);
+            var answer = _assessmentTestRepo.GetAnswers(questionId).Where(x => x.answerId == answerId).FirstOrDefault();
+            return answer.isCorrect;
+        }
+        public List<Question> GetQuestions(int id)
+        {
+            return _assessmentTestRepo.GetQuestions(id);
+        }
+
+        public List<Answer> GetAnswers(int id)
+        {
+            return _assessmentTestRepo.GetAnswers(id);
         }
 
     }
         public class TakeAssessmentViewModel
         {
-            public ICollection<AssessmentTest> AssessmentTests { get; set; }
+            public List<AssessmentTest> AssessmentTests { get; set; }
             public List<List<Question>> Questions { get; set; }
+
+            public List<List<List<Answer>>> Answers { get; set; }
         }
 }

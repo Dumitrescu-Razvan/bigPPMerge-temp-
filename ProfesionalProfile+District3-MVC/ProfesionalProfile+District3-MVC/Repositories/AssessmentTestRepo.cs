@@ -31,7 +31,7 @@ namespace ProfesionalProfile_District3_MVC.Repositories
             }
         }
 
-        public ICollection<AssessmentTest> GetAll()
+        public List<AssessmentTest> GetAll()
         {
             using (var context = _contextFactory.CreateDbContext())
             {
@@ -68,6 +68,14 @@ namespace ProfesionalProfile_District3_MVC.Repositories
             using (var context = _contextFactory.CreateDbContext())
             {
                 return context.Questions.Where(x => x.assesmentTestId == id).ToList();
+            }
+        }
+
+        public List<Answer> GetAnswers(int id)
+        {
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                return context.Answers.Where(x => x.questionId == id).ToList();
             }
         }
     }

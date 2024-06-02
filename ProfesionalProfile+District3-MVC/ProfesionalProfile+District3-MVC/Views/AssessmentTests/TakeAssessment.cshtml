@@ -3,6 +3,9 @@
 
 @{
     ViewData["Title"] = "TakeAssessment";
+    int i = 0; // This is the index of the selected assessment
+    int j = 0; // This is the index of the selected question
+    int k = 0; // This is the index of the selected answer
 }
 
 <h1>TakeAssessment</h1>
@@ -13,8 +16,8 @@
     <div class="row">
         <div class="col-md-4">
             <h4>Assessments</h4>
-
-            <select id="assessmentList" class="form-control">
+            <select id="assessmentList" class="form-control" script = "onchange={() => {@i = document.getElementById('assessmentList').selectedIndex;}">
+                <option value="">Select an Assessment</option>
                 @foreach (var assessment in Model.AssessmentTests)
                 {
                     <option value="@assessment.assessmentTestId">@assessment.testName</option>
@@ -23,19 +26,97 @@
         </div>
         <div class="col-md-4">
             <h4>Questions</h4>
-            <select id="questionsContainer" class="form-control">
-                @foreach (var questionList in Model.Questions)
-                {
-                    foreach (var question in questionList)
-                    {
-                        <option value="@question.questionId">@question.questionText</option>
-                    }
-                }
-                </select>
+            <select id="questionsContainer" class="form-control" script = "onchange={() => {@j = document.getElementById('questionsContainer').selectedIndex;}">
+                <option value="">Select a Question</option>
+            </select>
         </div>
         <div class="col-md-4">
             <h4>Answers</h4>
-            <ul id="answersContainer"></ul>
+            <select id="answersContainer" class="form-control" script = "onchange={() => {@k = document.getElementById('answersContainer').selectedIndex;}">
+                <option value="">Select an Answer</option>
+            </select>
         </div>
+        <div class="col-md-4">
+            <button type="button" class="btn-primary" id="checkAnswer">Check Answer</button>
     </div>
 </div>
+
+@section Scripts {
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#assessmentList").change(function () {
+                    var assessmentId = $(this).val();
+                    if (assessmentId) {
+                        $.ajax({
+                            url: '@Url.Action("GetQuestions", "AssessmentTests")',
+                            type: 'GET',
+                            data: { id: assessmentId },
+                            success: function (data) {
+                                $("#questionsContainer").empty();
+                                $("#questionsContainer").append('<option value="">Select a Question</option>');
+                                $.each(data, function (index, question) {
+                                        $("#questionsContainer").append('<option value="' + question.questionId + '">' + question.questionText + '</option>');
+                                });
+                            }
+                        });
+                    } else {
+                        $("#questionsContainer").empty();
+                        $("#questionsContainer").append('<option value="">Select a Question</option>');
+                    }
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#questionsContainer").change(function () {
+                    var questionId = $(this).val();
+                    if (questionId) {
+                        $.ajax({
+                            url: '@Url.Action("GetAnswers", "AssessmentTests")',
+                            type: 'GET',
+                            data: { id: questionId },
+                            success: function (data) {
+                                $("#answersContainer").empty();
+                                $("#answersContainer").append('<option value="">Select an Answer</option>');
+                                $.each(data, function (index, answer) {
+                                    $("#answersContainer").append('<option value="' + answer.answerId + '">' + answer.answerText + '</option>');
+                                });
+                            }
+                        });
+                    } else {
+                        $("#answersContainer").empty();
+                        $("#answersContainer").append('<option value="">Select an Answer</option>');
+                    }
+                });
+            });
+            </script>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $("#checkAnswer").click(function () {
+                        var answerId = $("#answersContainer").val();
+                        var questionId = $("#questionsContainer").val();
+                        if (answerId) {
+                            $.ajax({
+                                url: '@Url.Action("CheckAnswer", "AssessmentTests")',
+                                type: 'GET',
+                                data: { questionId: questionId, answerId: answerId },
+                                success: function (data) {
+                                    if (data) {
+                                        alert("Correct Answer");
+                                    } else {
+                                        alert("Incorrect Answer");
+                                    }
+                                }
+                            });
+                        } else {
+                            alert("Please select an answer");
+                        }
+                    });
+                });
+                </script>
+
+
+
+}
