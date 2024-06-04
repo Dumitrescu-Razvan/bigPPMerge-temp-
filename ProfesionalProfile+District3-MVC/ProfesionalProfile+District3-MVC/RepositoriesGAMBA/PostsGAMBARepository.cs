@@ -5,32 +5,32 @@ using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class PostsGAMBARepository : IPostGAMBARepository
+    public class PostGAMBARepository : IPostGAMBARepository
     {
         private readonly ApplicationDbContext _context;
 
-        public PostsGAMBARepository(ApplicationDbContext context)
+        public PostGAMBARepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<PostsGAMBA>> GetPostsAsync()
+        public async Task<IEnumerable<PostGAMBA>> GetPostAsync()
         {
-            return await _context.PostsGAMBA.ToListAsync();
+            return await _context.PostGAMBA.ToListAsync();
         }
 
-        public async Task<PostsGAMBA> GetPostByIdAsync(int id)
+        public async Task<PostGAMBA> GetPostByIdAsync(int id)
         {
-            return await _context.PostsGAMBA.FindAsync(id);
+            return await _context.PostGAMBA.FindAsync(id);
         }
 
-        public async Task AddPostAsync(PostsGAMBA post)
+        public async Task AddPostAsync(PostGAMBA post)
         {
-            _context.PostsGAMBA.Add(post);
+            _context.PostGAMBA.Add(post);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdatePostAsync(PostsGAMBA post)
+        public async Task UpdatePostAsync(PostGAMBA post)
         {
             _context.Entry(post).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -38,17 +38,17 @@ namespace ProfesionalProfile_District3_MVC.Repositories
 
         public async Task DeletePostAsync(int id)
         {
-            var post = await _context.PostsGAMBA.FindAsync(id);
+            var post = await _context.PostGAMBA.FindAsync(id);
             if (post != null)
             {
-                _context.PostsGAMBA.Remove(post);
+                _context.PostGAMBA.Remove(post);
                 await _context.SaveChangesAsync();
             }
         }
 
         public async Task<bool> PostExistsAsync(int id)
         {
-            return await _context.PostsGAMBA.AnyAsync(e => e.Post_Id == id);
+            return await _context.PostGAMBA.AnyAsync(e => e.Post_Id == id);
         }
     }
 }

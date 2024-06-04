@@ -5,84 +5,98 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProfesionalProfile_District3_MVC.Data;
-using ProfesionalProfile_District3_MVC.Interfaces;
 using ProfesionalProfile_District3_MVC.Models;
-using ProfesionalProfile_District3_MVC.Repositories;
+using ProfesionalProfile_District3_MVC.Data;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
-namespace ProfesionalProfile_District3_MVC.Controllers
+
+namespace Assignment7.Controllers
 {
     public class PostsController : Controller
     {
-         private readonly IRepoInterface<Post> postRepository;
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public PostsController(IRepoInterface<Post> psRepo)
+        public PostsController(ApplicationDbContext context, IWebHostEnvironment hostingEnvironment)
         {
-            postRepository = psRepo;
+            _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
 
-        // GET: Posts
+        // GET: Post
         public async Task<IActionResult> Index()
         {
-            ///return View(await _context.Post.ToListAsync());
-            var posts = postRepository.GetAll();
-            return View(posts);
+            return View(await _context.Post.ToListAsync());
         }
 
-        // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Post/Details/5
+        public async Task<IActionResult> Details(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            int idValue = id.Value;
-            var post = postRepository.GetById(idValue);
+            var post = await _context.Post
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
             {
                 return NotFound();
             }
+
             return View(post);
         }
 
-        // GET: Posts/Create
+        // GET: Post/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Posts/Create
+        // POST: Post/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id")] Post post)
+        public async Task<IActionResult> Create([Bind("Owner_User_Id,Description,Commented_Id,Original_Id,Post_Type,Location_Id,Created_Date")] Post post, IFormFile Image)
         {
             if (ModelState.IsValid)
             {
-                /*
+                if (Image != null && Image.Length > 0)
+                {
+                    // Save the image to wwwroot/images
+                    string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(Image.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await Image.CopyToAsync(fileStream);
+                    }
+
+                    // Store the relative path in the database
+                    post.Media_Path = "/images/" + uniqueFileName;
+                }
+
                 _context.Add(post);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-                */
-                postRepository.Add(post);
                 return RedirectToAction(nameof(Index));
             }
             return View(post);
         }
 
-        // GET: Posts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+
+        // GET: Post/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            //var post = await _context.Post.FindAsync(id);
-            var post = postRepository.GetById(id.Value);
-
+            var post = await _context.Post.FindAsync(id);
             if (post == null)
             {
                 return NotFound();
@@ -90,12 +104,12 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(post);
         }
 
-        // POST: Posts/Edit/5
+        // POST: Post/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("PostId,Owner_User_Id,Description,Commented_Id,Original_Id,Media_Path,Post_Type,Location_Id,Created_Date")] Post post)
         {
             if (id != post.Id)
             {
@@ -106,11 +120,8 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    /*
                     _context.Update(post);
                     await _context.SaveChangesAsync();
-                    */
-                    postRepository.Update(post);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -128,18 +139,16 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(post);
         }
 
-        // GET: Posts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Post/Delete/5
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-           // var post = await _context.Post
-            //    .FirstOrDefaultAsync(m => m.Id == id);
-            var post = postRepository.GetById(id.Value);
-
+            var post = await _context.Post
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
             {
                 return NotFound();
@@ -148,36 +157,24 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             return View(post);
         }
 
-        // POST: Posts/Delete/5
+        // POST: Post/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            ///var post = await _context.Post.FindAsync(id);
-           var post = postRepository.GetById(id);
+            var post = await _context.Post.FindAsync(id);
             if (post != null)
             {
-                ///_context.Post.Remove(post);
-                postRepository.Delete(post.Id);
+                _context.Post.Remove(post);
             }
 
-            ///await _context.SaveChangesAsync();
-            
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PostExists(int id)
         {
-            ///return _context.Post.Any(e => e.Id == id);
-            var post = postRepository.GetById(id);
-            if (post != null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return _context.Post.Any(e => e.Id == id);
         }
     }
 }

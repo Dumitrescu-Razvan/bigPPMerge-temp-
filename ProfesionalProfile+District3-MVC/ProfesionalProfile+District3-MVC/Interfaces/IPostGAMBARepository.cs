@@ -4,11 +4,11 @@ namespace ProfesionalProfile_District3_MVC.Interfaces
 {
     public interface IPostGAMBARepository
     {
-        Task AddPostAsync(PostsGAMBA post);
+        Task AddPostAsync(PostGAMBA post);
         Task DeletePostAsync(int id);
-        Task<PostsGAMBA> GetPostByIdAsync(int id);
-        Task<IEnumerable<PostsGAMBA>> GetPostsAsync();
+        Task<PostGAMBA> GetPostByIdAsync(int id);
+        Task<IEnumerable<PostGAMBA>> GetPostAsync();
         Task<bool> PostExistsAsync(int id);
-        Task UpdatePostAsync(PostsGAMBA post);
+        Task UpdatePostAsync(PostGAMBA post);
     }
 }

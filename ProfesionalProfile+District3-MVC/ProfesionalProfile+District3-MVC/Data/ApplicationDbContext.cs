@@ -205,9 +205,9 @@ namespace ProfesionalProfile_District3_MVC.Data
         // <------------------------------------ Securistii ------------------------------------>
         public DbSet<Location> Location { get; set; }
         public DbSet<Media> Media { get; set; } = null!;
-        public DbSet<PostsGAMBA> PostsGAMBA { get; set; } = null!;
+        public DbSet<PostGAMBA> PostGAMBA { get; set; } = null!;
         public DbSet<PostArchived> PostArchived { get; set; } = null!;
-        public DbSet<PostSaved> PostSaved { get; set; } = null!;
+        public DbSet<Postaved> Postaved { get; set; } = null!;
         public DbSet<PostReported> PostReported { get; set; } = null!;
         public DbSet<Block> Block { get; set; } = null!;
         public DbSet<Follow> Follow { get; set; } = null!;

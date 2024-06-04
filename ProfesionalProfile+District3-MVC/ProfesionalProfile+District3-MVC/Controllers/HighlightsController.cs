@@ -67,7 +67,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("HighlightId,UserId,PostsIds,Name,CoverFilePath")] Highlight highlight)
+        public async Task<IActionResult> Create([Bind("HighlightId,UserId,PostIds,Name,CoverFilePath")] Highlight highlight)
         {
             if (ModelState.IsValid)
             {
@@ -106,7 +106,7 @@ namespace ProfesionalProfile_District3_MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("HighlightId,UserId,PostsIds,Name,CoverFilePath")] Highlight highlight)
+        public async Task<IActionResult> Edit(int id, [Bind("HighlightId,UserId,PostIds,Name,CoverFilePath")] Highlight highlight)
         {
             if (id != highlight.HighlightId)
             {

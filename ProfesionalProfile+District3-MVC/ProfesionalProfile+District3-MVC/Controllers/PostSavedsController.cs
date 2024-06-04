@@ -11,23 +11,23 @@ using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class PostSavedsController : Controller
+    public class PostavedsController : Controller
     {
-        private readonly IPostSavedsRepository repository;
+        private readonly IPostavedsRepository repository;
 
-        public PostSavedsController(IPostSavedsRepository postSavedRepository)
+        public PostavedsController(IPostavedsRepository PostavedRepository)
         {
-            repository = postSavedRepository;
+            repository = PostavedRepository;
         }
 
-        // GET: PostSaveds
+        // GET: Postaveds
         public async Task<IActionResult> Index()
         {
-            var postSaved = await repository.GetPostSavedAsync();
-            return View(postSaved);
+            var Postaved = await repository.GetPostavedAsync();
+            return View(Postaved);
         }
 
-        // GET: PostSaveds/Details/5
+        // GET: Postaveds/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,33 +35,33 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postSaved = await repository.GetPostSavedByIdAsync(id.Value);
-            if (postSaved == null)
+            var Postaved = await repository.GetPostavedByIdAsync(id.Value);
+            if (Postaved == null)
             {
                 return NotFound();
             }
 
-            return View(postSaved);
+            return View(Postaved);
         }
 
-        // GET: PostSaveds/Create
+        // GET: Postaveds/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: PostSaveds/Create
+        // POST: Postaveds/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("save_id,post_id,user_id")] PostSaved postSaved)
+        public async Task<IActionResult> Create([Bind("save_id,post_id,user_id")] Postaved Postaved)
         {
-            await repository.AddPostSavedAsync(postSaved);
-            return View(postSaved);
+            await repository.AddPostavedAsync(Postaved);
+            return View(Postaved);
         }
 
-        // GET: PostSaveds/Edit/5
+        // GET: Postaveds/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -69,22 +69,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postSaved = await repository.GetPostSavedByIdAsync(id.Value);
-            if (postSaved == null)
+            var Postaved = await repository.GetPostavedByIdAsync(id.Value);
+            if (Postaved == null)
             {
                 return NotFound();
             }
-            return View(postSaved);
+            return View(Postaved);
         }
 
-        // POST: PostSaveds/Edit/5
+        // POST: Postaveds/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("save_id,post_id,user_id")] PostSaved postSaved)
+        public async Task<IActionResult> Edit(int id, [Bind("save_id,post_id,user_id")] Postaved Postaved)
         {
-            if (id != postSaved.save_id)
+            if (id != Postaved.save_id)
             {
                 return NotFound();
             }
@@ -93,11 +93,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    await repository.UpdatePostSavedAsync(postSaved);
+                    await repository.UpdatePostavedAsync(Postaved);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    var exists = await repository.PostSavedExistsAsync(postSaved.save_id);
+                    var exists = await repository.PostavedExistsAsync(Postaved.save_id);
                     if (!exists)
                     {
                         return NotFound();
@@ -109,10 +109,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(postSaved);
+            return View(Postaved);
         }
 
-        // GET: PostSaveds/Delete/5
+        // GET: Postaveds/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -120,21 +120,21 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postSaved = await repository.GetPostSavedByIdAsync(id.Value);
-            if (postSaved == null)
+            var Postaved = await repository.GetPostavedByIdAsync(id.Value);
+            if (Postaved == null)
             {
                 return NotFound();
             }
 
-            return View(postSaved);
+            return View(Postaved);
         }
 
-        // POST: PostSaveds/Delete/5
+        // POST: Postaveds/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await repository.DeletePostSavedAsync(id);
+            await repository.DeletePostavedAsync(id);
             return RedirectToAction(nameof(Index));
         }
 

@@ -9,21 +9,72 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+
+<div class="feed-container">
+    @foreach (var item in Model)
+    {
+        <div class="post">
+            <div class="post-header">
+                <strong>@Html.DisplayFor(modelItem => item.Owner_User_Id)</strong>
+                <span>@Html.DisplayFor(modelItem => item.Created_Date)</span>
+            </div>
+            <div class="post-body">
+                <p>@Html.DisplayFor(modelItem => item.Description)</p>
+                @if (!string.IsNullOrEmpty(item.Media_Path))
+                {
+                    <div class="post-media">
+                        <img src="@item.Media_Path" alt="Post Media" />
+                    </div>
+                }
+            </div>
+            <div class="post-actions">
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .feed-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .post {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #666;
+    }
+    .post-body {
+        margin-bottom: 10px;
+    }
+    .post-media img {
+        max-width: 100%;
+        border-radius: 5px;
+    }
+    .post-details p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #666;
+    }
+    .post-actions {
+        text-align: right;
+    }
+    .post-actions a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .post-actions a:hover {
+        text-decoration: underline;
+    }
+</style>

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProfesionalProfile_District3_MVC.Models
 {
-    public class PostsGAMBA
+    public class PostGAMBA
     {
         /*
         post_id

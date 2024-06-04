@@ -5,50 +5,50 @@ using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Repositories
 {
-    public class PostSavedsRepository : IPostSavedsRepository
+    public class PostavedsRepository : IPostavedsRepository
     {
         private readonly ApplicationDbContext _context;
 
-        public PostSavedsRepository(ApplicationDbContext context)
+        public PostavedsRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<PostSaved>> GetPostSavedAsync()
+        public async Task<IEnumerable<Postaved>> GetPostavedAsync()
         {
-            return await _context.PostSaved.ToListAsync();
+            return await _context.Postaved.ToListAsync();
         }
 
-        public async Task<PostSaved> GetPostSavedByIdAsync(int id)
+        public async Task<Postaved> GetPostavedByIdAsync(int id)
         {
-            return await _context.PostSaved.FindAsync(id);
+            return await _context.Postaved.FindAsync(id);
         }
 
-        public async Task AddPostSavedAsync(PostSaved postSaved)
+        public async Task AddPostavedAsync(Postaved Postaved)
         {
-            _context.PostSaved.Add(postSaved);
+            _context.Postaved.Add(Postaved);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdatePostSavedAsync(PostSaved postSaved)
+        public async Task UpdatePostavedAsync(Postaved Postaved)
         {
-            _context.Entry(postSaved).State = EntityState.Modified;
+            _context.Entry(Postaved).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeletePostSavedAsync(int id)
+        public async Task DeletePostavedAsync(int id)
         {
-            var postSaved = await _context.PostSaved.FindAsync(id);
-            if (postSaved != null)
+            var Postaved = await _context.Postaved.FindAsync(id);
+            if (Postaved != null)
             {
-                _context.PostSaved.Remove(postSaved);
+                _context.Postaved.Remove(Postaved);
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task<bool> PostSavedExistsAsync(int id)
+        public async Task<bool> PostavedExistsAsync(int id)
         {
-            return await _context.PostSaved.AnyAsync(e => e.save_id == id);
+            return await _context.Postaved.AnyAsync(e => e.save_id == id);
         }
     }
 }

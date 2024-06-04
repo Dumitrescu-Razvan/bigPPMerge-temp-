@@ -4,13 +4,13 @@ using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Interfaces
 {
-    public interface IPostSavedsRepository
+    public interface IPostavedsRepository
     {
-        Task AddPostSavedAsync(PostSaved postSaved);
-        Task DeletePostSavedAsync(int id);
-        Task<IEnumerable<PostSaved>> GetPostSavedAsync();
-        Task<PostSaved> GetPostSavedByIdAsync(int id);
-        Task<bool> PostSavedExistsAsync(int id);
-        Task UpdatePostSavedAsync(PostSaved postSaved);
+        Task AddPostavedAsync(Postaved Postaved);
+        Task DeletePostavedAsync(int id);
+        Task<IEnumerable<Postaved>> GetPostavedAsync();
+        Task<Postaved> GetPostavedByIdAsync(int id);
+        Task<bool> PostavedExistsAsync(int id);
+        Task UpdatePostavedAsync(Postaved Postaved);
     }
 }

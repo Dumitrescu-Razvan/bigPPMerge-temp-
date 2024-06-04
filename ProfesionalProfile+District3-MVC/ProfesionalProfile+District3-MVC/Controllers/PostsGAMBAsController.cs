@@ -11,23 +11,23 @@ using ProfesionalProfile_District3_MVC.Models;
 
 namespace ProfesionalProfile_District3_MVC.Controllers
 {
-    public class PostsGAMBAsController : Controller
+    public class PostGAMBAsController : Controller
     {
         private readonly IPostGAMBARepository repository;
 
-        public PostsGAMBAsController(IPostGAMBARepository _repository)
+        public PostGAMBAsController(IPostGAMBARepository _repository)
         {
             repository = _repository;
         }
 
-        // GET: PostsGAMBAs
+        // GET: PostGAMBAs
         public async Task<IActionResult> Index()
         {
-            var posts = await repository.GetPostsAsync();
-            return View(posts);
+            var Post = await repository.GetPostAsync();
+            return View(Post);
         }
 
-        // GET: PostsGAMBAs/Details/5
+        // GET: PostGAMBAs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,33 +35,33 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postsGAMBA = await repository.GetPostByIdAsync(id.Value);
-            if (postsGAMBA == null)
+            var PostGAMBA = await repository.GetPostByIdAsync(id.Value);
+            if (PostGAMBA == null)
             {
                 return NotFound();
             }
 
-            return View(postsGAMBA);
+            return View(PostGAMBA);
         }
 
-        // GET: PostsGAMBAs/Create
+        // GET: PostGAMBAs/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: PostsGAMBAs/Create
+        // POST: PostGAMBAs/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Post_Id,Owner_User_Id,Description,Commented_Post_Id,Original_Post_Id,Media_Path,Post_Type,Location_Id,Created_Date")] PostsGAMBA postsGAMBA)
+        public async Task<IActionResult> Create([Bind("Post_Id,Owner_User_Id,Description,Commented_Post_Id,Original_Post_Id,Media_Path,Post_Type,Location_Id,Created_Date")] PostGAMBA PostGAMBA)
         {
-            repository.AddPostAsync(postsGAMBA);
-            return View(postsGAMBA);
+            repository.AddPostAsync(PostGAMBA);
+            return View(PostGAMBA);
         }
 
-        // GET: PostsGAMBAs/Edit/5
+        // GET: PostGAMBAs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -69,22 +69,22 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postsGAMBA = await repository.GetPostByIdAsync(id.Value);
-            if (postsGAMBA == null)
+            var PostGAMBA = await repository.GetPostByIdAsync(id.Value);
+            if (PostGAMBA == null)
             {
                 return NotFound();
             }
-            return View(postsGAMBA);
+            return View(PostGAMBA);
         }
 
-        // POST: PostsGAMBAs/Edit/5
+        // POST: PostGAMBAs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Post_Id,Owner_User_Id,Description,Commented_Post_Id,Original_Post_Id,Media_Path,Post_Type,Location_Id,Created_Date")] PostsGAMBA postsGAMBA)
+        public async Task<IActionResult> Edit(int id, [Bind("Post_Id,Owner_User_Id,Description,Commented_Post_Id,Original_Post_Id,Media_Path,Post_Type,Location_Id,Created_Date")] PostGAMBA PostGAMBA)
         {
-            if (id != postsGAMBA.Post_Id)
+            if (id != PostGAMBA.Post_Id)
             {
                 return NotFound();
             }
@@ -93,11 +93,11 @@ namespace ProfesionalProfile_District3_MVC.Controllers
             {
                 try
                 {
-                    await repository.UpdatePostAsync(postsGAMBA);
+                    await repository.UpdatePostAsync(PostGAMBA);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    var exists = await repository.PostExistsAsync(postsGAMBA.Post_Id);
+                    var exists = await repository.PostExistsAsync(PostGAMBA.Post_Id);
                     if (!exists)
                     {
                         return NotFound();
@@ -109,10 +109,10 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(postsGAMBA);
+            return View(PostGAMBA);
         }
 
-        // GET: PostsGAMBAs/Delete/5
+        // GET: PostGAMBAs/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -120,16 +120,16 @@ namespace ProfesionalProfile_District3_MVC.Controllers
                 return NotFound();
             }
 
-            var postsGAMBA = await repository.GetPostByIdAsync(id.Value);
-            if (postsGAMBA == null)
+            var PostGAMBA = await repository.GetPostByIdAsync(id.Value);
+            if (PostGAMBA == null)
             {
                 return NotFound();
             }
 
-            return View(postsGAMBA);
+            return View(PostGAMBA);
         }
 
-        // POST: PostsGAMBAs/Delete/5
+        // POST: PostGAMBAs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
